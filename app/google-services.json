@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "56677528976",
+    "project_id": "appause-dea70",
+    "storage_bucket": "appause-dea70.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56677528976:android:ece28f41c40eeaa2aaaf15",
+        "android_client_info": {
+          "package_name": "com.example.appause"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56677528976-e9chq24vm5avac84c1m99djepogoeloh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9HSZrPzabvN7p6O4qC7alGjEQfY79c4g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56677528976-e9chq24vm5avac84c1m99djepogoeloh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
