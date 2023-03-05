@@ -50,7 +50,7 @@ class AppTimer(private val context: Context) {
                             )!!
                     }
                 }
-                if (appEvents.value[appEvents.value.size - 1].eventType == UsageEvents.Event.ACTIVITY_PAUSED) {
+                if (appEvents.value[appEvents.value.size - 1].eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                     val timeUsedCurr: Long = currTime - appEvents.value[appEvents.value.size - 1].timeStamp
                     GoalTracker.usageDataAll[appEvents.key]?.timeUsed =
                         GoalTracker.usageDataAll[appEvents.key]?.timeUsed?.plus(
