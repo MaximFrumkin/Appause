@@ -1,6 +1,8 @@
 package com.example.appause
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -12,13 +14,8 @@ import com.example.appause.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuth.AuthStateListener
-import com.google.firebase.auth.FirebaseUser
-import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,7 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
         // Choose authentication providers
-        val providers: List<AuthUI.IdpConfig> = Arrays.asList(
+        val providers: List<AuthUI.IdpConfig> = listOf(
             AuthUI.IdpConfig.GoogleBuilder().build()
         )
 
@@ -60,6 +57,10 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        // TODO: currently we always launch this permission activity
+        //  instead of immediately launching we should check if the permission has been granted
+        //  and if it hasn't then launch a dialog where if the user presses ok we launch the activity
+        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
