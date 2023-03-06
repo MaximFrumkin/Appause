@@ -8,19 +8,36 @@ import androidx.annotation.RequiresApi
 import java.util.*
 
 class AppTimer(private val context: Context) {
-    // TODO: trigger this whenever the user fetches the up to date info,
-    //  and also trigger on a schedule at the end of the day to see if the goal has been achieved
+    // TODO: trigger getCurrentUsage() whenever the user fetches the up to date info,
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    fun getDailyUsage() {
+    fun getCurrentUsage(){
+        val midnightCal: Calendar = Calendar.getInstance()
+        midnightCal.set(Calendar.HOUR_OF_DAY, 0)
+        midnightCal.set(Calendar.MINUTE, 0)
+        midnightCal.set(Calendar.SECOND, 0)
+        val midnight: Long = midnightCal.timeInMillis
+        val currTime = System.currentTimeMillis()
+        getUsage(midnight, currTime)
+    }
+    // TODO: trigger getDailyUsage() on a schedule at the end of the day to see if the goal has been achieved
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    fun getDailyUsage(){
         val yesterdayCal: Calendar = Calendar.getInstance()
-        yesterdayCal.add(Calendar.DATE, -1)
+
         yesterdayCal.set(Calendar.HOUR_OF_DAY, 0)
         yesterdayCal.set(Calendar.MINUTE, 0)
         yesterdayCal.set(Calendar.SECOND, 0)
-        val yesterday: Long = yesterdayCal.timeInMillis
+
+        val yesterdayMidnight: Long = yesterdayCal.timeInMillis
+        yesterdayCal.add(Calendar.DATE, -1)
+        val yesterdayMorning: Long = yesterdayCal.timeInMillis
+
+        getUsage(yesterdayMorning, yesterdayMidnight)
+    }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    private fun getUsage(begin : Long, end : Long) {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val currTime = System.currentTimeMillis()
-        val stats = usageStatsManager.queryEvents(yesterday, currTime)
+        val stats = usageStatsManager.queryEvents(begin, end)
         val eventsGroupedByApp : HashMap<String, MutableList<UsageEvents.Event>> = HashMap<String, MutableList <UsageEvents.Event>>()
         while (stats.hasNextEvent()) {
             val event = UsageEvents.Event()
@@ -51,14 +68,14 @@ class AppTimer(private val context: Context) {
                     }
                 }
                 if (appEvents.value[appEvents.value.size - 1].eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
-                    val timeUsedCurr: Long = currTime - appEvents.value[appEvents.value.size - 1].timeStamp
+                    val timeUsedCurr: Long = end - appEvents.value[appEvents.value.size - 1].timeStamp
                     GoalTracker.usageDataAll[appEvents.key]?.timeUsed =
                         GoalTracker.usageDataAll[appEvents.key]?.timeUsed?.plus(
                             timeUsedCurr
                         )!!
                 }
                 if (appEvents.value[0].eventType == UsageEvents.Event.ACTIVITY_PAUSED) {
-                    val timeUsedCurr: Long =  appEvents.value[appEvents.value.size - 1].timeStamp - yesterday
+                    val timeUsedCurr: Long =  appEvents.value[appEvents.value.size - 1].timeStamp - begin
                     GoalTracker.usageDataAll[appEvents.key]?.timeUsed =
                         GoalTracker.usageDataAll[appEvents.key]?.timeUsed?.plus(
                             timeUsedCurr
