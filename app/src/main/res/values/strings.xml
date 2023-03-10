@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Appause</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">Reports</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_notifications">Friends</string>
     <string name="web_client_id">"56677528976-ob0cd6l76sjs3u18u8tktqjda9nk68al.apps.googleusercontent.com"</string>
 </resources>
