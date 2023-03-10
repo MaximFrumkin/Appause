@@ -23,7 +23,7 @@ import java.util.HashMap
  * HashMap of all app usage data. The usage data is from midnight to the current time.
  */
 object  GoalTracker {
-    val goals : List<String> = emptyList()
+    val goals : List<Goal> = emptyList()
     val usageDataGoalsYesterday : List<HashMap<String, AppData>> = emptyList()
     val usageDataGoalsCurr : List<HashMap<String, AppData>> = emptyList()
     var usageDataAllYesterday :  HashMap<String, AppData> = HashMap<String, AppData>()
