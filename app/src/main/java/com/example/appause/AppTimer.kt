@@ -20,7 +20,7 @@ class AppTimer(private val context: Context) {
         midnightCal.set(Calendar.SECOND, 0)
         val midnight: Long = midnightCal.timeInMillis
         val currTime = System.currentTimeMillis()
-        GoalTracker.usageDataAllCurr = HashMap<String, AppData>()//reset the usageDataAllYesterday
+        GoalTracker.usageDataAllCurr = HashMap<String, AppData>()//reset the usageDataAllCurr
         getUsage(midnight, currTime, false)
     }
     // TODO: trigger getDailyUsage() on a schedule at the end of the day to see if the goal has been achieved
