@@ -1,4 +1,4 @@
-package com.example.appause.ui.home
+package com.example.appause.ui.reports
 
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +20,7 @@ class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.home_listview, parent, false)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.reports_list_item, parent, false)
         return ViewHolder(v)
     }
 

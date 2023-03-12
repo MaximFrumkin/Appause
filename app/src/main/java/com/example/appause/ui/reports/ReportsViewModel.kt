@@ -1,13 +1,13 @@
-package com.example.appause.ui.home
+package com.example.appause.ui.reports
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class ReportsViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+        value = "This is reports Fragment"
     }
     val text: LiveData<String> = _text
 }
