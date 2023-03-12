@@ -10,23 +10,15 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appause.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
-import androidx.recyclerview.widget.RecyclerView
-import com.example.easy.CustomAdapter
 
 
 class MainActivity : AppCompatActivity() {
-
-    private val texts = arrayOf("Special Noodles","Veg Biryani","Veg Sandwich","Pizza Friday","Pancakes","Ice Creams","Veg Burger")
-    private val desc = arrayOf("non veg","pure veg","pure veg","customizable","pure veg","pure veg","pure veg")
-    private val img = arrayOf(R.drawable.ic_hourglass_bottom,R.drawable.ic_hourglass_bottom,R.drawable.ic_hourglass_bottom,R.drawable.ic_hourglass_bottom,R.drawable.ic_hourglass_bottom
-        ,R.drawable.ic_hourglass_bottom,R.drawable.ic_hourglass_bottom)
 
     private lateinit var binding: ActivityMainBinding
     private val signInLauncher = registerForActivityResult(
@@ -53,11 +45,6 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
-        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = CustomAdapter(img,texts,desc)
 
 
         val navView: BottomNavigationView = binding.navView
