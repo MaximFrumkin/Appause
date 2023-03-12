@@ -10,7 +10,7 @@ import com.example.appause.R
 
 class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
-    private val description = arrayOf("Screen Time", "Social", "Productivity", "Video", "Entertainment", "Movies")
+    private val description = arrayOf("Total Screen Time", "Social", "Productivity", "Video", "Entertainment", "Movies")
 
     private val usageTime = arrayOf("1 / 4 h", "1 / 0.5 h", "0 / 3 h", "0.5 / 0.5 h", "4 / 2 h", " 5 / 2 h")
 
