@@ -16,6 +16,9 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
@@ -61,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         //  instead of immediately launching we should check if the permission has been granted
         //  and if it hasn't then launch a dialog where if the user presses ok we launch the activity
         startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        dbMethod()
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
@@ -90,4 +94,97 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
     }
+
+
+    private fun addUser(user: FirebaseUser) {
+        val db = Firebase.firestore
+        // Create a new user with a first and last name
+        var user = hashMapOf(
+            "email" to user.email,
+            "name" to user.displayName,
+        )
+
+        val TAG = "MyActivity"
+
+        db.collection("users")
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "User added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding user", e)
+            }
+    }
+    private fun checkIfUserExists(user: FirebaseUser) {
+        val db = Firebase.firestore
+        val TAG = "MyActivity"
+
+        val usersRef = db.collection("users")
+        usersRef.whereEqualTo("email", user.email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.size() == 0) {
+                        addUser(user)
+                }
+
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
+    }
+
+    private fun dbMethod() {
+        val db = Firebase.firestore
+        // Create a new user with a first and last name
+        var user = hashMapOf(
+                "first" to "Ada",
+                "last" to "Lovelace",
+                "born" to 1815
+        )
+
+        val TAG = "MyActivity"
+
+// Add a new document with a generated ID
+        db.collection("users")
+                .add(user)
+                .addOnSuccessListener { documentReference ->
+                    Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error adding document", e)
+                }
+
+
+        // Create a new user with a first, middle, and last name
+        user = hashMapOf(
+                "first" to "Alan",
+                "middle" to "Mathison",
+                "last" to "Turing",
+                "born" to 1912
+        )
+
+// Add a new document with a generated ID
+        db.collection("users")
+                .add(user)
+                .addOnSuccessListener { documentReference ->
+                    Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error adding document", e)
+                }
+
+        db.collection("users")
+                .get()
+                .addOnSuccessListener { result ->
+                    for (document in result) {
+                        Log.d(TAG, "DATABASE OUTPUT - ${document.id} => ${document.data}")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "Error getting documents.", exception)
+                }
+
+    }
+
+
 }
