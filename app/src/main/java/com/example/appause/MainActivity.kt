@@ -16,11 +16,16 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    lateinit var user: FirebaseUser
+
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
     ) { res ->
@@ -52,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_notifications
+                R.id.navigation_home, R.id.navigation_friends
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -67,8 +72,8 @@ class MainActivity : AppCompatActivity() {
         val response = result.idpResponse
         Log.v("INFO", ">>>>>>>\t\t\t\tGOT THE RESPONSE: " + response.toString())
         if (result.resultCode == RESULT_OK) {
-            // Successfully signed in
-            val user = FirebaseAuth.getInstance().currentUser
+            // Successfully signed in. Non-null asserted because result code is not an error.
+            user = FirebaseAuth.getInstance().currentUser!!
             Log.v("INFO", ">>>>>>>\t\t\t\tUSER: " + user.toString())
             if (user != null) {
                 Toast.makeText(
@@ -76,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                     "Welcome back to Appause " + user.displayName + "!",
                     Toast.LENGTH_SHORT
                 ).show()
+                checkIfUserExists(user)
             }
         } else {
             Toast.makeText(
@@ -85,4 +91,98 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
     }
+
+
+    private fun addUser(user: FirebaseUser) {
+        val db = Firebase.firestore
+        // Create a new user with a first and last name
+        var userProfile = hashMapOf(
+            "email" to user.email,
+            "name" to user.displayName,
+            "friendRequests" to emptyList<String>()
+        )
+
+        val TAG = "MyActivity"
+
+        db.collection("users")
+            .add(userProfile)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "User added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding user", e)
+            }
+    }
+    private fun checkIfUserExists(user: FirebaseUser) {
+        val db = Firebase.firestore
+        val TAG = "MyActivity"
+
+        val usersRef = db.collection("users")
+        usersRef.whereEqualTo("email", user.email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.size() == 0) {
+                        addUser(user)
+                }
+
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
+    }
+
+    private fun dbMethod() {
+        val db = Firebase.firestore
+        // Create a new user with a first and last name
+        var user = hashMapOf(
+                "first" to "Ada",
+                "last" to "Lovelace",
+                "born" to 1815
+        )
+
+        val TAG = "MyActivity"
+
+// Add a new document with a generated ID
+        db.collection("users")
+                .add(user)
+                .addOnSuccessListener { documentReference ->
+                    Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error adding document", e)
+                }
+
+
+        // Create a new user with a first, middle, and last name
+        user = hashMapOf(
+                "first" to "Alan",
+                "middle" to "Mathison",
+                "last" to "Turing",
+                "born" to 1912
+        )
+
+// Add a new document with a generated ID
+        db.collection("users")
+                .add(user)
+                .addOnSuccessListener { documentReference ->
+                    Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error adding document", e)
+                }
+
+        db.collection("users")
+                .get()
+                .addOnSuccessListener { result ->
+                    for (document in result) {
+                        Log.d(TAG, "DATABASE OUTPUT - ${document.id} => ${document.data}")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "Error getting documents.", exception)
+                }
+
+    }
+
+
 }
