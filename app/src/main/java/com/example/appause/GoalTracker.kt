@@ -35,7 +35,8 @@ object  GoalTracker {
     var usageDataAllYesterday :  HashMap<String, AppData> = HashMap<String, AppData>()
     var goalTimeUsedYesterday: List<Long> = emptyList()
     var goalTimeUsedCurr: List<Long> = emptyList()
-    var totalTime: Long = 0
+    var totalTimeYesterday: Long = 0
+    var totalTimeCurr: Long = 0
     var usageDataAllCurr :  HashMap<String, AppData> = HashMap<String, AppData>()
     fun updateUsageDataAll(key: String, timeUsedCurr : Long, isDaily : Boolean){
         if(isDaily) {
