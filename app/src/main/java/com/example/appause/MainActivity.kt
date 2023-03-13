@@ -24,6 +24,8 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    lateinit var user: FirebaseUser
+
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
     ) { res ->
@@ -71,8 +73,8 @@ class MainActivity : AppCompatActivity() {
         val response = result.idpResponse
         Log.v("INFO", ">>>>>>>\t\t\t\tGOT THE RESPONSE: " + response.toString())
         if (result.resultCode == RESULT_OK) {
-            // Successfully signed in
-            val user = FirebaseAuth.getInstance().currentUser
+            // Successfully signed in. Non-null asserted because result code is not an error.
+            user = FirebaseAuth.getInstance().currentUser!!
             Log.v("INFO", ">>>>>>>\t\t\t\tUSER: " + user.toString())
             if (user != null) {
                 Toast.makeText(
@@ -100,15 +102,16 @@ class MainActivity : AppCompatActivity() {
     private fun addUser(user: FirebaseUser) {
         val db = Firebase.firestore
         // Create a new user with a first and last name
-        var user = hashMapOf(
+        var userProfile = hashMapOf(
             "email" to user.email,
             "name" to user.displayName,
+            "friendRequests" to emptyList<String>()
         )
 
         val TAG = "MyActivity"
 
         db.collection("users")
-            .add(user)
+            .add(userProfile)
             .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "User added with ID: ${documentReference.id}")
             }
