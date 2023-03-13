@@ -8,13 +8,19 @@ import java.util.HashMap
  * [goals]
  * List of the goals
  *
- * [usageDataGoalsYesterday]
- * List of the usage data relevant to each goal. The usage data is from yesterday.
- * For index i in the list, the app data hashmap is only the data relevant to the goal at index i of [goals].
+ * [goalAppsYesterday]
+ * List of the app names relevant to each goal. Only apps used yesterday are included.
+ * For index i in the list, the list of app names are only the apps relevant to the goal at index i of [goals].
+ * The app data can be be accessed by calling [usageDataAllYesterday] [app name].
+ * This saves space as compared to storing the usage data hashmap for each goal,
+ * as the apps that pertain to multiple goals will not have their app data stored multiple times.
  *
- * [usageDataGoalsCurr]
- * List of the usage data relevant to each goal. The usage data is from midnight to the current time.
- * For index i in the list, the app data hashmap is only the data relevant to the goal at index i of [goals].
+ * [goalAppsCurr]
+ * List of the app names relevant to each goal. Only apps used from midnight to the current time are included.
+ * For index i in the list, the list of app names are only the apps relevant to the goal at index i of [goals].
+ * The app data can be be accessed by calling [usageDataAllCurr] [app name].
+ * This saves space as compared to storing the usage data hashmap for each goal,
+ * as the apps that pertain to multiple goals will not have their app data stored multiple times.
  *
  * [usageDataAllYesterday]
  * HashMap of all app usage data. The usage data is from yesterday.
@@ -24,8 +30,8 @@ import java.util.HashMap
  */
 object  GoalTracker {
     val goals : List<Goal> = emptyList()
-    val usageDataGoalsYesterday : List<HashMap<String, AppData>> = emptyList()
-    val usageDataGoalsCurr : List<HashMap<String, AppData>> = emptyList()
+    val goalAppsYesterday : List<List<String>> = emptyList()
+    val goalAppsCurr : List<List<String>> = emptyList()
     var usageDataAllYesterday :  HashMap<String, AppData> = HashMap<String, AppData>()
     var usageDataAllCurr :  HashMap<String, AppData> = HashMap<String, AppData>()
     fun updateUsageDataAll(key: String, timeUsedCurr : Long, isDaily : Boolean){
