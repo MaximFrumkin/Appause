@@ -1,4 +1,4 @@
-package com.example.appause.ui.notifications
+package com.example.appause.ui.friends
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

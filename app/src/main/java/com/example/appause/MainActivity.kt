@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_notifications
+                R.id.navigation_home, R.id.navigation_friends
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -65,7 +65,6 @@ class MainActivity : AppCompatActivity() {
         //  instead of immediately launching we should check if the permission has been granted
         //  and if it hasn't then launch a dialog where if the user presses ok we launch the activity
         startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-        dbMethod()
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
@@ -81,6 +80,7 @@ class MainActivity : AppCompatActivity() {
                     "Welcome back to Appause " + user.displayName + "!",
                     Toast.LENGTH_SHORT
                 ).show()
+                checkIfUserExists(user)
             }
             // ...
         } else {
