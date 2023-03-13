@@ -55,9 +55,10 @@ class FriendSearchViewAdapter(mainActivity: MainActivity) : RecyclerView.Adapter
         }
 
         private fun addFriend(view: View) {
+            // todo: clean the raw input to avoid injection attack
             val to = email.getText().toString();
             // TODO: Uncomment the line below. Comment out because, I need to sign in to get user.email
-//            val from = mainActivity.user.email
+            val from = mainActivity.user.email
             Log.d("TAG", "Sending to $to")
 
             val db = Firebase.firestore
@@ -67,9 +68,11 @@ class FriendSearchViewAdapter(mainActivity: MainActivity) : RecyclerView.Adapter
             collectionRef.whereEqualTo("email", to)
                 .get()
                 .addOnSuccessListener { result ->
+                    // todo: clean it up by just taking first index.
                     for (document in result) {
                         // todo: change the double quotation
-                        document.reference.update("friendRequests", listOf("from"))
+                        // todo: check for current request already existing
+                        document.reference.update("friendRequests", listOf(from))
                     }
                 }
                 .addOnFailureListener { error ->

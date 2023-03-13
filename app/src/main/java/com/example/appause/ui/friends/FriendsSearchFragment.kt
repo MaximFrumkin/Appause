@@ -75,6 +75,7 @@ class FriendSearchFragment : Fragment() {
 
         // TODO: Have an OR condition for users to search either using a name or email.
         // todo: Make the query lowercase to make search case insensitive
+        // Todo: add the egrep logic for partial recognition
         val usersRef = db.collection("users")
         usersRef
             .whereEqualTo("name", query)

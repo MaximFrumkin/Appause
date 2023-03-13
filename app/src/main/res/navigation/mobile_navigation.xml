@@ -14,7 +14,7 @@
 
     <fragment
         android:id="@+id/navigation_friends"
-        android:name="com.example.appause.ui.friends.FriendSearchFragment"
+        android:name="com.example.appause.ui.friends.Friends"
         android:label="@string/title_friends"
         tools:layout="@layout/fragment_friend_search" />
 </navigation>
