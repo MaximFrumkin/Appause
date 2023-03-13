@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
             AuthUI.IdpConfig.GoogleBuilder().build()
         )
 
-        // Create and launch sign-in intent
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
@@ -78,12 +77,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            // ...
         } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
             Toast.makeText(
                 this@MainActivity,
                 "Welcome to Appause! Please sign in to get started.",
