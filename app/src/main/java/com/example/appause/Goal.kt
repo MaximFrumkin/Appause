@@ -12,7 +12,7 @@ import android.app.usage.UsageEvents
 class Goal {
     val goalName : String = ""
     var goalTime : Long = 0
-    val categoryList: List<Integer> = emptyList()
+    val categoryList: MutableSet<String> = mutableSetOf()
     val appList: List<String> = emptyList()
     fun eventIsInGoal(event : UsageEvents.Event): Boolean {
         return true

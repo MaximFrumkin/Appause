@@ -3,11 +3,15 @@ package com.example.appause
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.util.*
 
 class AppTimer(private val context: Context) {
+    val pm: PackageManager = context.getPackageManager();
+
     // TODO: trigger getCurrentUsage() whenever the user fetches the up to date info
     /**
      *  Get the usage data from midnight to the current time, and store it in the [GoalTracker] object.
@@ -73,6 +77,13 @@ class AppTimer(private val context: Context) {
             }
         }
         eventsGroupedByApp.forEach { appEvents ->
+            var applicationInfo: ApplicationInfo = pm.getApplicationInfo(appEvents.key, 0)
+            var appCategory: Int = 0
+            var categoryTitle: String = ""
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                appCategory = applicationInfo.category
+                categoryTitle = ApplicationInfo.getCategoryTitle(context, appCategory) as String
+            }
             // TODO: here we can look at which goals are relevant to this app
             //  and add the data to GoalTracker
             for(i in 0..appEvents.value.size - 2) {
@@ -81,16 +92,16 @@ class AppTimer(private val context: Context) {
                         GoalTracker.initUsageDataKey(appEvents.key, isDaily)
                         val timeUsedCurr: Long =
                             appEvents.value[i + 1].timeStamp - appEvents.value[i].timeStamp
-                        GoalTracker.updateUsageDataAll(appEvents.key, timeUsedCurr, isDaily)
+                        GoalTracker.updateUsageDataAll(appEvents.key, categoryTitle, timeUsedCurr, isDaily)
                     }
                 }
                 if (appEvents.value[appEvents.value.size - 1].eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                     val timeUsedCurr: Long = end - appEvents.value[appEvents.value.size - 1].timeStamp
-                    GoalTracker.updateUsageDataAll(appEvents.key, timeUsedCurr, isDaily)
+                    GoalTracker.updateUsageDataAll(appEvents.key, categoryTitle, timeUsedCurr, isDaily)
                 }
                 if (appEvents.value[0].eventType == UsageEvents.Event.ACTIVITY_PAUSED) {
                     val timeUsedCurr: Long =  appEvents.value[appEvents.value.size - 1].timeStamp - begin
-                    GoalTracker.updateUsageDataAll(appEvents.key, timeUsedCurr, isDaily)
+                    GoalTracker.updateUsageDataAll(appEvents.key, categoryTitle, timeUsedCurr, isDaily)
                 }
             }
         }

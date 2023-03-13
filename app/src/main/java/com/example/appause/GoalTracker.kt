@@ -38,17 +38,29 @@ object  GoalTracker {
     var totalTimeYesterday: Long = 0
     var totalTimeCurr: Long = 0
     var usageDataAllCurr :  HashMap<String, AppData> = HashMap<String, AppData>()
-    fun updateUsageDataAll(key: String, timeUsedCurr : Long, isDaily : Boolean){
+    fun updateUsageDataAll(key: String, category: String, timeUsedCurr : Long, isDaily : Boolean){
         if(isDaily) {
             usageDataAllYesterday[key]?.timeUsed =
                 usageDataAllYesterday[key]?.timeUsed?.plus(
                     timeUsedCurr
                 )!!
+            for(i in goals.indices) {
+                if (category in goals[i].categoryList || key in goals[i].appList) {//pretty sure i can just have a map of categories -> list of goals but whatever
+                    goalTimeUsedCurr[i]?.plus(timeUsedCurr)
+                }
+            }
+            totalTimeCurr.plus(timeUsedCurr)
         } else {
             usageDataAllCurr[key]?.timeUsed =
                 usageDataAllCurr[key]?.timeUsed?.plus(
                     timeUsedCurr
                 )!!
+            for(i in goals.indices) {
+                if (category in goals[i].categoryList || key in goals[i].appList) {//pretty sure i can just have a map of categories -> list of goals but whatever
+                    goalTimeUsedYesterday[i]?.plus(timeUsedCurr)
+                }
+            }
+            totalTimeYesterday.plus(timeUsedCurr)
         }
     }
     fun initUsageDataKey(key: String, isDaily : Boolean){
