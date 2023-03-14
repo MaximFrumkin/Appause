@@ -150,11 +150,28 @@ class MainActivity : AppCompatActivity() {
                 checkIfUserExists(user)
             }
         } else {
-            Toast.makeText(
-                this@MainActivity,
-                "Welcome to Appause! Please sign in to get started.",
-                Toast.LENGTH_SHORT
-            ).show()
+
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+                val signInIntent = AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setAvailableProviders(listOf(
+                        AuthUI.IdpConfig.GoogleBuilder().build()
+                    ))
+                    .build()
+                signInLauncher.launch(signInIntent)
+            }
+
+            builder.setNegativeButton("No, close the app") { dialog, _ ->
+                dialog.dismiss()
+                this.finish()
+                exitProcess(0)
+            }
+            builder.setMessage("Welcome to Appause! Please sign in to get started.")
+            builder.show()
+
+
         }
     }
 
