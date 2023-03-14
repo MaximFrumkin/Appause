@@ -1,4 +1,4 @@
-package com.example.appause.ui.reports
+package com.example.appause.ui.friends
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,16 +7,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.appause.CurrentUser
 import com.example.appause.MainActivity
 import com.example.appause.R
 import com.example.appause.UserProfile
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class FriendSearchViewAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<FriendSearchViewAdapter.ViewHolder>() {
+class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.ViewHolder>() {
 
      private var friendsSearchResult : List<UserProfile> = emptyList()
-     private val mainActivity: MainActivity = mainActivity
 
     fun updateData(lst : List<UserProfile>) {
         friendsSearchResult = lst
@@ -58,7 +58,7 @@ class FriendSearchViewAdapter(mainActivity: MainActivity) : RecyclerView.Adapter
             // todo: clean the raw input to avoid injection attack
             val to = email.getText().toString();
             // TODO: Uncomment the line below. Comment out because, I need to sign in to get user.email
-            val from = mainActivity.user.email
+            val from = CurrentUser.user.email
             Log.d("TAG", "Sending to $to")
 
             val db = Firebase.firestore
