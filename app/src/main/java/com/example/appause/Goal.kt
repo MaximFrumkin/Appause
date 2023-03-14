@@ -10,7 +10,7 @@ import android.app.usage.UsageEvents
 //or base don app categories
 //
 class Goal {
-    val goalName : String = ""
+    var goalName : String = ""
     var goalTime : Long = 0
     val categoryList: MutableSet<String> = mutableSetOf()
     val appList: List<String> = emptyList()
