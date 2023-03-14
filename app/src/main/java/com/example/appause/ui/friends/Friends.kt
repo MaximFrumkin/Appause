@@ -20,14 +20,6 @@ class Friends : Fragment() {
         val view = inflater.inflate(R.layout.friends, container, false)
         val button = view.findViewById<Button>(R.id.addFriend)
         button.setOnClickListener {
-//            val newFragment = FriendSearchFragment()
-//            val transaction = childFragmentManager.beginTransaction()
-//            transaction.replace(R.id.addFriend, newFragment)
-//
-////            childFragmentManager.hide(this)
-//
-//            transaction.addToBackStack(null)
-//            transaction.commit()
             val intent = Intent(context, FriendsSearchActivity::class.java)
             startActivity(intent)
         }

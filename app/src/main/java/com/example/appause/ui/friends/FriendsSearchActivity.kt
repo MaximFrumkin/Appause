@@ -1,8 +1,10 @@
 package com.example.appause.ui.friends
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -53,7 +55,12 @@ class FriendsSearchActivity : AppCompatActivity() {
 //        searchResult = listOf(UserProfile("Yousuf", "yafroze@uwaterloo.ca"), UserProfile("Sergui", "serguipocol@uwaterloo.ca"), UserProfile("maxim", "maximgenius@uwaterloo.ca"))
         searchResult = emptyList()
         adapter.updateData(searchResult)
-//        setContentView(view)
+
+        val button = findViewById<Button>(R.id.requests)
+        button.setOnClickListener {
+            val intent = Intent(this, FriendRequestActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     // todo: make a better name for the function

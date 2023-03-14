@@ -17,6 +17,11 @@
         android:theme="@style/Theme.Appause"
         tools:targetApi="31">
         <activity
+            android:name=".ui.friends.FriendRequestActivity"
+            android:exported="false"
+            android:label="@string/title_activity_friend_request"
+            android:theme="@style/Theme.Appause.NoActionBar" />
+        <activity
             android:name=".ui.friends.FriendsSearchActivity"
             android:exported="true" />
         <activity
