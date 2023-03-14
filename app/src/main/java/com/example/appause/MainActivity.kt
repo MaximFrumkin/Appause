@@ -1,10 +1,16 @@
 package com.example.appause
 
+import android.app.AlertDialog
+import android.app.AppOpsManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
+import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -19,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +37,12 @@ class MainActivity : AppCompatActivity() {
         FirebaseAuthUIActivityResultContract()
     ) { res ->
         this.onSignInResult(res)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onStart() {
+        super.onStart()
+        handlePermissions()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,10 +75,50 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        // TODO: currently we always launch this permission activity
-        //  instead of immediately launching we should check if the permission has been granted
-        //  and if it hasn't then launch a dialog where if the user presses ok we launch the activity
-        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun handlePermissions() {
+        @RequiresApi(Build.VERSION_CODES.Q)
+        fun getUsageAccessGranted() : Boolean {
+            return try {
+                val packageManager: PackageManager = this.applicationContext.packageManager
+                val applicationInfo =
+                    packageManager.getApplicationInfo(this.applicationContext.packageName, 0)
+                val appOpsManager =
+                    this.applicationContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+                val mode = appOpsManager.unsafeCheckOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    applicationInfo.uid,
+                    applicationInfo.packageName
+                )
+                (mode == AppOpsManager.MODE_ALLOWED)
+            } catch (e: PackageManager.NameNotFoundException) {
+                false
+            }
+        }
+        if (!getUsageAccessGranted()) {
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+                startActivity(Intent(ACTION_USAGE_ACCESS_SETTINGS))
+            }
+
+            builder.setNegativeButton("No, close the app") { dialog, _ ->
+                dialog.dismiss()
+                Toast.makeText(
+                    this@MainActivity,
+                    "In order to user Appause please grant the requested permissions.",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                this.finish()
+                exitProcess(0)
+            }
+            builder.setMessage("Appause requires your app usage data in order to be able " +
+                    "to track your progress in completing your goals!")
+            builder.show()
+        }
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
