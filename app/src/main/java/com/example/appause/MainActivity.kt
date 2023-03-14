@@ -32,14 +32,23 @@ class MainActivity : AppCompatActivity() {
         this.onSignInResult(res)
     }
 
+    val goalTracker: GoalTracker = GoalTracker
+    var appTimer: AppTimer? = null
+    val apps: List<String> = listOf("com.google.android.youtube")
+    val categories: List<String> = emptyList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
         // Choose authentication providers
+        appTimer = AppTimer(this.applicationContext)
+        goalTracker.addGoal("youtube", 6000, apps, categories)
         val providers: List<AuthUI.IdpConfig> = listOf(
             AuthUI.IdpConfig.GoogleBuilder().build()
         )
+
+
 
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
@@ -67,7 +76,11 @@ class MainActivity : AppCompatActivity() {
         //  and if it hasn't then launch a dialog where if the user presses ok we launch the activity
         startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
     }
-
+    /*override fun onResume() {
+        super.onResume()
+        appTimer?.getCurrentUsage()
+        print(goalTracker.totalTimeCurr)
+    }*/
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         val response = result.idpResponse
         Log.v("INFO", ">>>>>>>\t\t\t\tGOT THE RESPONSE: " + response.toString())
