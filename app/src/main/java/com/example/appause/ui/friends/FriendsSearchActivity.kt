@@ -23,8 +23,8 @@ class FriendsSearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        setContentView(R.layout.activity_search)
-        setContentView(R.layout.fragment_friend_search)
-//        val view = inflater.inflate(R.layout.fragment_friend_search, container, false)
+        setContentView(R.layout.friend_search)
+//        val view = inflater.inflate(R.layout.friend_search.xml, container, false)
 
         // Initialize the SearchView
         searchView = findViewById(R.id.friend_search_view)
