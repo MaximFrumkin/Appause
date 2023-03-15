@@ -1,14 +1,15 @@
 package com.example.appause.ui.friends
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.CurrentUser
-import com.example.appause.MainActivity
 import com.example.appause.R
 import com.example.appause.UserProfile
 import com.google.firebase.firestore.ktx.firestore
@@ -16,10 +17,16 @@ import com.google.firebase.ktx.Firebase
 
 class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter.FriendRequestViewHolder>() {
 
-    private var friendRequestsList : List<UserProfile> = emptyList()
+    private var friendRequestsList : MutableList<UserProfile> = mutableListOf()
+    private lateinit var mContext: Context
 
-    fun updateData(lst : List<UserProfile>) {
-        friendRequestsList = lst
+
+//    fun updateData(lst : List<UserProfile>) {
+////        friendRequestsList = lst
+////        notifyDataSetChanged()
+//    }
+    fun addUserProfile(user : UserProfile) {
+        friendRequestsList.add(user)
         notifyDataSetChanged()
     }
 
@@ -27,6 +34,7 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
         parent: ViewGroup,
         viewType: Int
     ): FriendRequestViewHolder {
+        mContext = parent.context
         val view : View = LayoutInflater.from(parent.context).inflate(R.layout.friend_request_item, parent, false)
         return FriendRequestViewHolder(view)
     }
