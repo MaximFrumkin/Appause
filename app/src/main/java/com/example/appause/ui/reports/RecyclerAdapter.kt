@@ -20,7 +20,7 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
 
     private val description = arrayOf("Social", "Productivity", "Video", "Entertainment", "Movies")
 
-    private val totalTime = arrayOf(10, 5, 4, 1, 5)
+    private val totalTime = arrayOf(2, 5, 2, 1, 1)
 
     // TODO use these in future
 
@@ -29,7 +29,7 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
     // this variable represents total screen time
     private var totalTimeCurr: Long = 100
     // this represents usage for ith category
-    private var goalTimeUsedCurr : List<Long> = listOf(1, 0, 0.5, 4, 5) as List<Long>
+    private var goalTimeUsedCurr : List<Long> = listOf(2, 3, 1, 1, 0) as List<Long>
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun updateData() {
@@ -65,14 +65,15 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, i: Int) {
 
-        val image = getViewImage(i)
-
-        holder.hourglass.setImageResource(image)
         holder.description.text = goals[i].goalName
 
         val usage : String = if (goals[i].goalName == "Total Screen Time") {
+            // set view for total screen time
             goals[i].goalTime.toString() + " h"
         } else {
+            // set view for all other items
+            val image = getViewImage(i)
+            holder.hourglass.setImageResource(image)
             goalTimeUsedCurr[i-1].toString() + " / " + goals[i].goalTime.toString() + " h"
         }
         holder.usageTime.text = usage
@@ -84,15 +85,17 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
 
     private fun getViewImage(position: Int): Int {
 
-        // TODO: implement logic that if 50% used, then glass half full etc then implement actual data logic
-        val time = goals[position].goalTime
+        val  timeUsed = goalTimeUsedCurr[position-1]
 
-        val image : Int = if (time > 5) {
+        // TODO: implement logic that if 50% used, then glass half full etc then implement actual data logic
+        val totalTime = goals[position].goalTime
+
+        val image : Int = if (totalTime == timeUsed) {
             R.drawable.ic_hourglass_bottom
-        } else if (time == 5L) {
-            R.drawable.ic_hourglass_full
-        } else {
+        } else if (timeUsed == 0L) {
             R.drawable.ic_hourglass_top
+        } else {
+            R.drawable.ic_hourglass_full
         }
         return image
     }
