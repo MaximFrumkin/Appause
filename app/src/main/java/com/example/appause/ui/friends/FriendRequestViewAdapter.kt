@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.CurrentUser
 import com.example.appause.R
 import com.example.appause.UserProfile
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -27,6 +28,11 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
 //    }
     fun addUserProfile(user : UserProfile) {
         friendRequestsList.add(user)
+        notifyDataSetChanged()
+    }
+
+    fun removeUserProfile(user : UserProfile) {
+        friendRequestsList.remove(user)
         notifyDataSetChanged()
     }
 
@@ -94,7 +100,41 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
         }
 
         private fun declineRequest(view : View) {
+            val name : String = itemView.findViewById<TextView>(R.id.displayName).text.toString()
+            val email : String = itemView.findViewById<TextView>(R.id.email).text.toString()
 
+            removeUserProfile(UserProfile(name, email))
+            val getIdTask = CurrentUser.getUsersId(email)
+
+            getIdTask.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val senderId = task.result.toString()
+                    removeRequest(senderId, CurrentUser.user.email.toString())
+                } else {
+                    Log.e("Firebase", "Error removing request", task.exception)
+                }
+            }
+        }
+
+        private fun removeRequest(requesterId: String, requestedUserEmail: String) {
+            val db = Firebase.firestore
+            val collectionRef = db.collection("users")
+            collectionRef.whereEqualTo("email", requestedUserEmail)
+                .get()
+                .addOnSuccessListener { result ->
+                    // todo: clean it up by just taking first index.
+                    // FieldValue.arrayUnion makes a union of distinct elements. Hence a user can't
+                    // send multiple requests to the user before being declined.
+                    for (document in result) {
+                        document.reference.update(
+                            "friendRequests",
+                            FieldValue.arrayRemove(requesterId)
+                        )
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Log.e("Firebase", "Error adding new value to list: ", error)
+                }
         }
     }
 }

@@ -66,7 +66,7 @@ class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.F
             Log.d("TAG", "Sending to $to")
 
             val TAG = "MyActivity"
-            val getIdTask = getSenderId(from)
+            val getIdTask = CurrentUser.getUsersId(from)
 
 
             getIdTask.addOnCompleteListener { task ->
@@ -80,28 +80,28 @@ class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.F
             }
         }
 
-        fun getSenderId(from: String): Task<String?> {
-            val db = Firebase.firestore
+//        fun getSenderId(from: String): Task<String?> {
+//            val db = Firebase.firestore
+//
+//            val docRef = db.collection("users")
+//            val query = docRef.whereEqualTo("email", from).limit(1)
+//
+//            return query.get().continueWith { task ->
+//                if (task.isSuccessful) {
+//                    val result = task.result
+//                    if (result != null && !result.isEmpty) {
+//                        result.documents[0].id
+//                    } else {
+//                        null
+//                    }
+//                } else {
+//                    Log.e("Firebase", "Error getting id")
+//                    null
+//                }
+//            }
+//        }
 
-            val docRef = db.collection("users")
-            val query = docRef.whereEqualTo("email", from).limit(1)
-
-            return query.get().continueWith { task ->
-                if (task.isSuccessful) {
-                    val result = task.result
-                    if (result != null && !result.isEmpty) {
-                        result.documents[0].id
-                    } else {
-                        null
-                    }
-                } else {
-                    Log.e("Firebase", "Error getting id")
-                    null
-                }
-            }
-        }
-
-        fun publishRequest(senderId: String, to: String) {
+        private fun publishRequest(senderId: String, to: String) {
             val db = Firebase.firestore
             val collectionRef = db.collection("users")
             collectionRef.whereEqualTo("email", to)

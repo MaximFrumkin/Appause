@@ -17,9 +17,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class FriendRequestActivity : AppCompatActivity() {
-    private var _binding: FragmentReportsBinding? = null
 
-    private lateinit var requests: List<UserProfile>
     private lateinit var adapter: FriendRequestViewAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -36,7 +34,6 @@ class FriendRequestActivity : AppCompatActivity() {
 
 
 //         Initialize the item list and submit it to the adapter
-        requests = emptyList()
         populateFriendRequestList()
 //        adapter.addUserProfile(requests)
     }
