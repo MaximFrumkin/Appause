@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
@@ -16,27 +17,28 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_marginEnd="60dp"
-            android:background="#FFFFFF" />
+            android:background="#FFFFFF"
+            app:srcCompat="@drawable/gold_trophy" />
 
         <TextView
             android:id="@+id/friendName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textSize="20sp"
-            android:textColor="#000000"
-            android:textStyle="bold"
             android:layout_toEndOf="@id/trophy"
-            android:text="Screen Time"/>
+            android:text="Alexander"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/friendGoalRatioAchievedText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/trophy"
             android:layout_below="@id/friendName"
-            android:textColor="#000000"
-            android:text=" 1 / 5 h"/>
+            android:layout_toEndOf="@id/trophy"
+            android:text="Achieved 5/5 of his goals!"
+            android:textColor="#000000" />
 
     </RelativeLayout>
 

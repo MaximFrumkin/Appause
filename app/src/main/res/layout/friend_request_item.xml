@@ -32,15 +32,24 @@
             android:textColor="#000000" />
 
         <Button
-            android:id="@+id/addFriend"
+            android:id="@+id/accept"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="282dp"
-            android:layout_marginTop="15dp"
-            android:text="Add"
-            />
+            android:layout_marginStart="175dp"
+            android:layout_marginTop="18dp"
+            android:text="Accept" />
+
+        <Button
+            android:id="@+id/decline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="275dp"
+            android:layout_marginTop="18dp"
+            android:text="Decline" />
 
     </RelativeLayout>
 

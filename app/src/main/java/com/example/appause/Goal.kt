@@ -9,7 +9,7 @@ import android.app.usage.UsageEvents
 //base don app itself (facebook etc)
 //or base don app categories
 //
-class Goal(val goalName: String, var goalTime : Long, val appList: List<String>, val categoryList: List<String>) {
+class Goal(var goalName: String, var goalTime : Long, val appList: List<String>, val categoryList: List<String>) {
     fun eventIsInGoal(event : UsageEvents.Event): Boolean {
         return true
     }

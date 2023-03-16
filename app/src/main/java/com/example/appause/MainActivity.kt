@@ -31,7 +31,6 @@ import kotlin.system.exitProcess
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    lateinit var user: FirebaseUser
 
     private val signInLauncher = registerForActivityResult(
         FirebaseAuthUIActivityResultContract()
@@ -139,7 +138,8 @@ class MainActivity : AppCompatActivity() {
         Log.v("INFO", ">>>>>>>\t\t\t\tGOT THE RESPONSE: " + response.toString())
         if (result.resultCode == RESULT_OK) {
             // Successfully signed in. Non-null asserted because result code is not an error.
-            user = FirebaseAuth.getInstance().currentUser!!
+            val user = FirebaseAuth.getInstance().currentUser!!
+            CurrentUser.user = user
             Log.v("INFO", ">>>>>>>\t\t\t\tUSER: " + user.toString())
             if (user != null) {
                 Toast.makeText(

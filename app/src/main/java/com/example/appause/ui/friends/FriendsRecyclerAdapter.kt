@@ -9,45 +9,45 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.R
 
 class FriendsRecyclerAdapter : RecyclerView.Adapter<FriendsRecyclerAdapter.ViewHolder>() {
-    private val description = arrayOf("Total Screen Time", "Social", "Productivity", "Video", "Entertainment", "Movies")
+    private val friendName = arrayOf("Alexander", "Emma", "Nate L.", "You", "Jordan")
 
-    private val usageTime = arrayOf("1 / 4 h", "1 / 0.5 h", "0 / 3 h", "0.5 / 0.5 h", "4 / 2 h", " 5 / 2 h")
+    private val friendGoalRatioAchievedText = arrayOf("Achieved 5/5 of his goals!", "Achieved 6/6 of her goals!", "Achieved 2/2 of his goals!", "Achieved 1/4 of your goals!", "Achieved 3/3 of his goals!")
 
-    private val time = arrayOf(10, 5, 4, 1, 5, 9)
+    private val goalsAchieved = arrayOf(5, 6, 2, 1, 3)
+    private val totalGoals = arrayOf(5, 6, 2, 4, 3)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.reports_list_item, parent, false)
+            val v = LayoutInflater.from(parent.context).inflate(R.layout.friends_list_item, parent, false)
             return ViewHolder(v)
     }
 
 
     override fun onBindViewHolder(holder: FriendsRecyclerAdapter.ViewHolder, i: Int) {
-        val image : Int = if (time[i] > 5) {
-            R.drawable.ic_hourglass_bottom
-        } else if (time[i] == 5) {
-            R.drawable.ic_hourglass_full
+        val image : Int = if (goalsAchieved[i] / totalGoals[i] == 1) {
+            R.drawable.gold_trophy
         } else {
-            R.drawable.ic_hourglass_top
+            R.drawable.bronze_trophy
+
         }
 
-        holder.hourglass.setImageResource(image)
-        holder.description.text = description[i]
-        holder.usageTime.text = usageTime[i]
+        holder.trophy.setImageResource(image)
+        holder.friendName.text = friendName[i]
+        holder.friendGoalRatioAchievedText.text = friendGoalRatioAchievedText[i]
     }
 
     override fun getItemCount(): Int {
-        return description.size
+        return friendName.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        var hourglass: ImageView
-        var description: TextView
-        var usageTime: TextView
+        var trophy: ImageView
+        var friendName: TextView
+        var friendGoalRatioAchievedText: TextView
 
         init {
-            hourglass = itemView.findViewById(R.id.hourglass)
-            description = itemView.findViewById(R.id.description)
-            usageTime = itemView.findViewById(R.id.usageTime)
+            trophy = itemView.findViewById(R.id.trophy)
+            friendName = itemView.findViewById(R.id.friendName)
+            friendGoalRatioAchievedText = itemView.findViewById(R.id.friendGoalRatioAchievedText)
         }
     }
 }

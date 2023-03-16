@@ -24,7 +24,6 @@ class FriendsFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.friends_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.adapter = FriendsRecyclerAdapter()
-
         return view
 
     }
