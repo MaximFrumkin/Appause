@@ -1,12 +1,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/friends"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/friends">
+    android:backgroundTint="#FFFFFF"
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/addFriend"
         android:layout_width="match_parent"
+        android:layout_height="60dp"
+
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="351dp"
+        android:layout_marginTop="13dp"
+
+        android:layout_marginEnd="9dp"
+        android:text="Add Friends"
+        app:icon="@drawable/add_friend" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/friends_recycler_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Friends" />
+        android:layout_marginBottom="50dp"
+        android:scrollbars="vertical"
+        android:verticalScrollbarPosition="right"
+        android:visibility="visible" />
 </LinearLayout>

@@ -2,7 +2,6 @@ package com.example.appause.ui.reports
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.*
 
 class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
-    //
     private val mainActivity: MainActivity = mainActivity
     private var context = mainActivity.applicationContext
     private var appTimer = AppTimer(context)
@@ -91,11 +89,11 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
         val totalTime = goals[position].goalTime
 
         val image : Int = if (totalTime == timeUsed) {
-            R.drawable.ic_hourglass_bottom
+            R.drawable.hourglass_bottom
         } else if (timeUsed == 0L) {
-            R.drawable.ic_hourglass_top
+            R.drawable.hourglass_top
         } else {
-            R.drawable.ic_hourglass_full
+            R.drawable.hourglass
         }
         return image
     }
@@ -107,9 +105,9 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
         var usageTime: TextView
 
         init {
-            hourglass = itemView.findViewById(R.id.hourglass)
-            description = itemView.findViewById(R.id.description)
-            usageTime = itemView.findViewById(R.id.usageTime)
+            hourglass = itemView.findViewById(R.id.trophy)
+            description = itemView.findViewById(R.id.friendName)
+            usageTime = itemView.findViewById(R.id.friendGoalRatioAchievedText)
         }
     }
 }
