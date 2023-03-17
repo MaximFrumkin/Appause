@@ -86,11 +86,11 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
         val time = goals[position].goalTime
 
         val image : Int = if (time > 5) {
-            R.drawable.ic_hourglass_bottom
+            R.drawable.hourglass_bottom
         } else if (time == 5L) {
-            R.drawable.ic_hourglass_full
+            R.drawable.hourglass
         } else {
-            R.drawable.ic_hourglass_top
+            R.drawable.hourglass_top
         }
         return image
     }
