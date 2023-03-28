@@ -12,33 +12,35 @@
         android:padding="15dp"
         android:background="#FFFFFF">
 
-        <ImageView
-            android:id="@+id/trophy"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginEnd="60dp"
-            android:background="#FFFFFF"
-            app:srcCompat="@drawable/gold_trophy" />
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/friendName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_toEndOf="@id/trophy"
-            android:text="Alexander"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/trophy"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginEnd="60dp"
+                android:background="#FFFFFF"
+                app:srcCompat="@drawable/gold_trophy" />
 
-        <TextView
-            android:id="@+id/friendGoalRatioAchievedText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/friendName"
-            android:layout_toEndOf="@id/trophy"
-            android:text="Achieved 5/5 of his goals!"
-            android:textColor="#000000" />
+            <TextView
+                android:id="@+id/friendGoalRatioAchievedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Achieved 5/5 of his goals!"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/friendName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Alexander"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
 
     </RelativeLayout>
 

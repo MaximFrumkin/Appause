@@ -25,7 +25,7 @@ class FriendsRecyclerAdapter : RecyclerView.Adapter<FriendsRecyclerAdapter.ViewH
         val image : Int = if (goalsAchieved[i] / totalGoals[i] == 1) {
             R.drawable.gold_trophy
         } else {
-            R.drawable.bronze_trophy
+            R.drawable.silver_trophy
 
         }
 

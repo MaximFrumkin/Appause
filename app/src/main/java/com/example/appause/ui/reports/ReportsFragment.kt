@@ -13,6 +13,7 @@ import com.example.appause.AppTimer
 import com.example.appause.MainActivity
 import com.example.appause.R
 import com.example.appause.databinding.FragmentReportsBinding
+import com.google.android.material.color.DynamicColors
 
 class ReportsFragment : Fragment() {
 
@@ -26,7 +27,6 @@ class ReportsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_reports, container, false)
 
         adapter = RecyclerAdapter(activity as MainActivity)
