@@ -21,9 +21,9 @@ class FriendsFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.friends, container, false)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.friends_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-        recyclerView.adapter = FriendsRecyclerAdapter()
+//        val recyclerView: RecyclerView = view.findViewById(R.id.friends_recycler_view)
+//        recyclerView.layoutManager = LinearLayoutManager(activity)
+//        recyclerView.adapter = FriendsRecyclerAdapter(listener)
         return view
 
     }

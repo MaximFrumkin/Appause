@@ -9,11 +9,9 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.appause.AppTimer
 import com.example.appause.MainActivity
 import com.example.appause.R
 import com.example.appause.databinding.FragmentReportsBinding
-import com.google.android.material.color.DynamicColors
 
 class ReportsFragment : Fragment() {
 

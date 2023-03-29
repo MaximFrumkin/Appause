@@ -1,38 +1,22 @@
-package com.example.appause.ui.reports
+package com.example.appause.ui.friends
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.RequiresApi
-import androidx.cardview.widget.CardView
-import androidx.fragment.app.Fragment
-import com.example.appause.MainActivity
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.appause.R
-import com.example.appause.databinding.FragmentReportsBinding
 
-class FriendReportFragment : Fragment(){
-    private var _binding: FragmentReportsBinding? = null
-    private lateinit var adapter: RecyclerAdapter
+class FriendReportActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.friends_report_item) // set the layout for the activity
 
-    private var app = this.getActivity()
+        // pass data to a detailed report of a friend on Friends page
+        findViewById<ImageView>(R.id.trophy).setImageResource(intent.getIntExtra("IMAGE_NO", R.drawable.silver_trophy))
+        findViewById<TextView>(R.id.friendName).text = intent.getStringExtra("NAME")
+        findViewById<TextView>(R.id.friendGoalRatioAchievedText).text = intent.getStringExtra("GAOL_RATIO_ARCHIVED")
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-
-        adapter.updateData()
-
-        return view
-
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

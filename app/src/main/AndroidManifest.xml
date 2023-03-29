@@ -25,6 +25,11 @@
             android:name=".ui.friends.FriendsSearchActivity"
             android:exported="true" />
         <activity
+            android:name=".ui.friends.FriendReportActivity"
+            android:exported="false"
+            android:label="@string/title_activity_friend_report"
+            android:theme="@style/Theme.Appause.NoActionBar" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

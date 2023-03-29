@@ -52,7 +52,7 @@ class FriendsSearchActivity : AppCompatActivity() {
 
 
 //         Initialize the item list and submit it to the adapter
-//        searchResult = listOf(UserProfile("Yousuf", "yafroze@uwaterloo.ca"), UserProfile("Sergui", "serguipocol@uwaterloo.ca"), UserProfile("maxim", "maximgenius@uwaterloo.ca"))
+//        searchResult = listOf(UserProfile("Yousuf", "yafroze@uwaterloo.ca"), UserProfile("Sergiu", "serguipocol@uwaterloo.ca"), UserProfile("maxim", "maximgenius@uwaterloo.ca"))
         searchResult = emptyList()
         adapter.updateData(searchResult)
 

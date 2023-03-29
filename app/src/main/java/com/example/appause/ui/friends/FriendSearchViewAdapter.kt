@@ -76,7 +76,6 @@ class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.F
                 } else {
                     Log.e(TAG, "Error getting document", task.exception)
                 }
-
             }
         }
 
