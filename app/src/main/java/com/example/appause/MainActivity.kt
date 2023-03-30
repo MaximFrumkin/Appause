@@ -90,22 +90,27 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
         setAlarmTomorrow()
     }
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     private fun dailyGoalCheck() {
-        GoalTracker.countGoals()
-        //schedule new alarm for tomorrow. This is necessary as setRepeating() is inexact
-        // after android API 19 to save battery,
-        // so in order to guarantee that the daily goal check happens within 20 minutes of midnight,
-        // we use a setWindow instead, and set it each day
-        setAlarmTomorrow()
-        //TODO send the info about goals achieved
-        // from the GoalTracker.numAchievedGoalsYesterday
-        // and the total number of goals to firestore
-        if(GoalTracker.isMilestone()){
-            //TODO: notify friends about milestone
+        if(appTimer != null) {
+            appTimer!!.getDailyUsage()
+            GoalTracker.countGoals()
+            //schedule new alarm for tomorrow. This is necessary as setRepeating() is inexact
+            // after android API 19 to save battery,
+            // so in order to guarantee that the daily goal check happens within 20 minutes of midnight,
+            // we use a setWindow instead, and set it each day
+            setAlarmTomorrow()
+            //TODO send the info about goals achieved
+            // from the GoalTracker.numAchievedGoalsYesterday
+            // and the total number of goals to firestore
+            if (GoalTracker.isMilestone()) {
+                //TODO: notify friends about milestone
+            }
         }
     }
     private fun setAlarmTomorrow(){
         val broadcastReceiver = object : BroadcastReceiver() {
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
             override fun onReceive(contxt: Context?, intent: Intent?) {
                 when (intent?.action) {
                     "CountGoals" -> dailyGoalCheck()
@@ -163,7 +168,8 @@ class MainActivity : AppCompatActivity() {
                 exitProcess(0)
             }
             builder.setMessage("Appause requires your app usage data in order to be able " +
-                    "to track your progress in completing your goals!")
+                    "to track your progress in completing your goals!" +
+                    " This data will not leave your device!")
             builder.show()
         }
     }
