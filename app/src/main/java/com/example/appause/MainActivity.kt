@@ -1,7 +1,10 @@
 package com.example.appause
 
+import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.AppOpsManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,6 +28,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
 
@@ -83,8 +88,42 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        setAlarmTomorrow()
     }
-
+    private fun dailyGoalCheck() {
+        GoalTracker.countGoals()
+        //schedule new alarm for tomorrow. This is necessary as setRepeating() is inexact
+        // after android API 19 to save battery,
+        // so in order to guarantee that the daily goal check happens within 20 minutes of midnight,
+        // we use a setWindow instead, and set it each day
+        setAlarmTomorrow()
+        //TODO send the info about goals achieved
+        // from the GoalTracker.numAchievedGoalsYesterday
+        // and the total number of goals to firestore
+        if(GoalTracker.isMilestone()){
+            //TODO: notify friends about milestone
+        }
+    }
+    private fun setAlarmTomorrow(){
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(contxt: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    "CountGoals" -> dailyGoalCheck()
+                }
+            }
+        }
+        val goalIntent = Intent(applicationContext, broadcastReceiver::class.java)
+        goalIntent.action = "CountGoals"
+        val alarmIntent = PendingIntent.getBroadcast(applicationContext, 0, goalIntent, 0)
+        val alarmManager = applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
+        val tomorrowCal: Calendar = Calendar.getInstance()
+        tomorrowCal.set(Calendar.HOUR_OF_DAY, 0)
+        tomorrowCal.set(Calendar.MINUTE, 0)
+        tomorrowCal.set(Calendar.SECOND, 0)
+        tomorrowCal.add(Calendar.DATE, 1)
+        val tomorrowMidnight: Long = tomorrowCal.timeInMillis
+        alarmManager.setWindow(AlarmManager.RTC, tomorrowMidnight, TimeUnit.MINUTES.toMillis(20), alarmIntent)
+    }
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun handlePermissions() {
         @RequiresApi(Build.VERSION_CODES.Q)

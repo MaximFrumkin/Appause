@@ -30,11 +30,14 @@ import java.util.HashMap
  */
 object  GoalTracker {
     var goals : MutableList<Goal> = mutableListOf()
-    val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf()
-    val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf()
+    //val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf()
+    //val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf()
     var usageDataAllYesterday :  HashMap<String, AppData> = HashMap<String, AppData>()
     var goalTimeUsedYesterday: List<Long> = emptyList()
+    var goalTimeAllowed: List<Long> = emptyList() //TODO: @Lanney populate this like goalTimeUsedYesterday but for the amount of time allowed for each goal
     var goalTimeUsedCurr: List<Long> = emptyList()
+    var numAchievedGoalsYesterday = 0
+    var goalStreakDays = 0;
     var totalTimeYesterday: Long = 0
     var totalTimeCurr: Long = 0
     var usageDataAllCurr :  HashMap<String, AppData> = HashMap<String, AppData>()
@@ -78,5 +81,25 @@ object  GoalTracker {
         val goal = Goal(name, time, apps, categories)
         goals.add(goal)
         print("addGoal finished")
+    }
+    fun countGoals(){
+        numAchievedGoalsYesterday = 0;
+        for (i in goalTimeUsedYesterday.indices){
+            if(goalTimeAllowed[i] >= goalTimeUsedYesterday[i]){
+                numAchievedGoalsYesterday++;
+            }
+        }
+        if(numAchievedGoalsYesterday == goalTimeAllowed.size){
+            goalStreakDays++
+        }else{
+            goalStreakDays = 0;
+        }
+    }
+    fun isMilestone(): Boolean {
+        if (goalStreakDays == 0) {
+            return false;
+        } else if(goalStreakDays == 1) {
+            return true;
+        } else return goalStreakDays % 10 == 0
     }
 }
