@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     private fun setAlarmTomorrow(){
         val broadcastReceiver = object : BroadcastReceiver() {
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-            override fun onReceive(contxt: Context?, intent: Intent?) {
+            override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
                     "CountGoals" -> dailyGoalCheck()
                 }
