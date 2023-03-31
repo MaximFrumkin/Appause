@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     val apps: List<String> = listOf("com.google.android.youtube")
     val categories: List<String> = emptyList()
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
         setAlarmTomorrow()
     }
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun dailyGoalCheck() {
         if(appTimer != null) {
             appTimer!!.getDailyUsage()
@@ -108,6 +109,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun setAlarmTomorrow(){
         val broadcastReceiver = object : BroadcastReceiver() {
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
@@ -119,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         }
         val goalIntent = Intent(applicationContext, broadcastReceiver::class.java)
         goalIntent.action = "CountGoals"
-        val alarmIntent = PendingIntent.getBroadcast(applicationContext, 0, goalIntent, 0)
+        val alarmIntent = PendingIntent.getBroadcast(applicationContext, 0, goalIntent, PendingIntent.FLAG_IMMUTABLE)
         val alarmManager = applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val tomorrowCal: Calendar = Calendar.getInstance()
         tomorrowCal.set(Calendar.HOUR_OF_DAY, 0)
