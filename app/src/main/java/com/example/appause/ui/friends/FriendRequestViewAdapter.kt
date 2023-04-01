@@ -21,11 +21,6 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
     private var friendRequestsList : MutableList<UserProfile> = mutableListOf()
     private lateinit var mContext: Context
 
-
-//    fun updateData(lst : List<UserProfile>) {
-////        friendRequestsList = lst
-////        notifyDataSetChanged()
-//    }
     fun addUserProfile(user : UserProfile) {
         friendRequestsList.add(user)
         notifyDataSetChanged()
@@ -74,29 +69,33 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
         }
 
         private fun acceptRequest(view: View) {
-//            // todo: clean the raw input to avoid injection attack
-//            val to = email.getText().toString();
-//            // TODO: Uncomment the line below. Comment out because, I need to sign in to get user.email
-//            val from = CurrentUser.user.email
-//            Log.d("TAG", "Sending to $to")
-//
-//            val db = Firebase.firestore
-//            val TAG = "MyActivity"
-//
-//            val collectionRef = db.collection("users")
-//            collectionRef.whereEqualTo("email", to)
-//                .get()
-//                .addOnSuccessListener { result ->
-//                    // todo: clean it up by just taking first index.
-//                    for (document in result) {
-//                        // todo: change the double quotation
-//                        // todo: check for current request already existing
-//                        document.reference.update("friendRequests", listOf(from))
-//                    }
-//                }
-//                .addOnFailureListener { error ->
-//                    Log.e(TAG, "Error adding new value to list: ", error)
-//                }
+            val name : String = itemView.findViewById<TextView>(R.id.displayName).text.toString()
+            val email : String = itemView.findViewById<TextView>(R.id.email).text.toString()
+
+            removeUserProfile(UserProfile(name, email))
+            var getIdTask = CurrentUser.getUsersId(email)
+
+            getIdTask.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val senderId = task.result.toString()
+                    removeRequest(senderId, CurrentUser.user.email.toString())
+                } else {
+                    Log.e("Firebase", "Error removing request", task.exception)
+                }
+            }
+
+            getIdTask = CurrentUser.getUsersId(email)
+            getIdTask.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val senderId = task.result.toString()
+                    addFriendInDB(senderId, CurrentUser.user.email.toString())
+                } else {
+                    Log.e("Firebase", "Error removing request", task.exception)
+                }
+            }
+
+
+
         }
 
         private fun declineRequest(view : View) {
@@ -120,15 +119,37 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
             val db = Firebase.firestore
             val collectionRef = db.collection("users")
             collectionRef.whereEqualTo("email", requestedUserEmail)
+                .limit(1)
                 .get()
                 .addOnSuccessListener { result ->
-                    // todo: clean it up by just taking first index.
                     // FieldValue.arrayUnion makes a union of distinct elements. Hence a user can't
                     // send multiple requests to the user before being declined.
-                    for (document in result) {
+                    if (!result.isEmpty) {
+                        val document = result.first()
                         document.reference.update(
                             "friendRequests",
                             FieldValue.arrayRemove(requesterId)
+                        )
+                    }
+                }
+                .addOnFailureListener { error ->
+                    Log.e("Firebase", "Error adding new value to list: ", error)
+                }
+        }
+
+
+        private fun addFriendInDB(requesterId: String, requestedUserEmail: String) {
+            val db = Firebase.firestore
+            val collectionRef = db.collection("users")
+            collectionRef.whereEqualTo("email", requestedUserEmail)
+                .limit(1)
+                .get()
+                .addOnSuccessListener { result ->
+                    if (!result.isEmpty) {
+                        val document = result.first()
+                        document.reference.update(
+                            "friends",
+                            FieldValue.arrayUnion(requesterId)
                         )
                     }
                 }
