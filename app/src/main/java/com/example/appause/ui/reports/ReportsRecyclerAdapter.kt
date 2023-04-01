@@ -2,54 +2,66 @@ package com.example.appause.ui.reports
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.*
+import com.example.appause.ui.friends.FriendsRecyclerAdapter
 
-class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+class ReportsRecyclerAdapter(mainActivity: MainActivity, private val listener: OnItemClickListener) : RecyclerView.Adapter<ReportsRecyclerAdapter.ViewHolder>() {
     private val mainActivity: MainActivity = mainActivity
     private var context = mainActivity.applicationContext
     private var appTimer = AppTimer(context)
 
-    private val description = arrayOf("Social", "Productivity", "Video", "Entertainment", "Movies")
-
-    private val totalTime = arrayOf(2, 5, 2, 1, 1)
-
-    // TODO use these in future
-
     // This list contains goalCategories and goalTime
     private var goals : List<Goal> = emptyList()
     // this variable represents total screen time
-    private var totalTimeCurr: Long = 100
+    private var totalScreenTime: Long = 0
     // this represents usage for ith category
-    private var goalTimeUsedCurr : List<Long> = listOf(2, 3, 1, 1, 0) as List<Long>
+    private var goalTimeUsedCurr : List<Long> = emptyList()
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun updateData() {
         // this is getting actual data
-        // TODO fix the error on this line
-        // appTimer.getCurrentUsage()
-        var totalScreenTime = GoalTracker.totalTimeCurr
+//        appTimer.getCurrentUsage()
 
-        // Dummy data
-        val goal = Goal("", 0, listOf(), listOf())
-        goal.goalName = "Total Screen Time"
-        goal.goalTime = totalTimeCurr
-        val newGoalList : MutableList<Goal> = mutableListOf(goal)
-        for (i in description.indices) {
-            val goal = Goal("", 0, listOf(), listOf())
-            goal.goalName = description[i]
-            goal.goalTime = totalTime[i].toLong()
+        // TODO remove this block later
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        // Fill in GoalTracker object with dummy data and use that dummy data. TODO Later, do not fill the object
+        GoalTracker.totalTimeCurr = 7
+        GoalTracker.goalTimeUsedCurr = listOf(2, 3, 1, 1, 0)
+        val goal1 = Goal("Social", 2, listOf(), listOf())
+        val goal2 = Goal("Productivity", 5, listOf(), listOf())
+        val goal3 = Goal("Video", 2, listOf(), listOf())
+        val goal4 = Goal("Entertainment", 1, listOf(), listOf())
+        val goal5 = Goal("Movies", 1, listOf(), listOf())
+        GoalTracker.goals = listOf(goal1, goal2, goal3, goal4, goal5) as MutableList<Goal>
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        val totalScreenTimeGoal = Goal("", 0, listOf(), listOf())
+        totalScreenTimeGoal.goalName = "Total Screen Time"
+
+        val newGoalList : MutableList<Goal> = mutableListOf(totalScreenTimeGoal)
+
+        for (goal in GoalTracker.goals) {
             newGoalList.add(goal)
         }
 
         goals = newGoalList
+        totalScreenTime = GoalTracker.totalTimeCurr
+        goalTimeUsedCurr = GoalTracker.goalTimeUsedCurr
         notifyDataSetChanged()
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(goal: Goal)
     }
 
     override fun onCreateViewHolder(
@@ -63,18 +75,30 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, i: Int) {
 
+
         holder.description.text = goals[i].goalName
 
-        val usage : String = if (goals[i].goalName == "Total Screen Time") {
+        if (goals[i].goalName == "Total Screen Time") {
             // set view for total screen time
-            goals[i].goalTime.toString() + " h"
+
+            // set image for for total screen time
+            // todo set total screen time image here
+            val image = R.drawable.screen_time
+            holder.hourglass.setImageResource(image)
+
+            val usage = "$totalScreenTime h"
+            holder.usageTime.text = usage
+
         } else {
             // set view for all other items
             val image = getViewImage(i)
             holder.hourglass.setImageResource(image)
-            goalTimeUsedCurr[i-1].toString() + " / " + goals[i].goalTime.toString() + " h"
+
+            val usage : String = goalTimeUsedCurr[i-1].toString() + " / " + goals[i].goalTime.toString() + " h"
+            holder.usageTime.text = usage
+
+            holder.bind(goals[i], listener)
         }
-        holder.usageTime.text = usage
     }
 
     override fun getItemCount(): Int {
@@ -109,5 +133,14 @@ class RecyclerAdapter(mainActivity: MainActivity) : RecyclerView.Adapter<Recycle
             description = itemView.findViewById(R.id.friendName)
             usageTime = itemView.findViewById(R.id.friendGoalRatioAchievedText)
         }
+
+        fun bind(goal: Goal, listener: OnItemClickListener) {
+            val view = itemView.findViewById<CardView>(R.id.report_card)
+            view.setOnClickListener {
+                Log.d("Reports", "listener is set: $goal")
+                listener.onItemClick(goal)
+            }
+        }
     }
+
 }
