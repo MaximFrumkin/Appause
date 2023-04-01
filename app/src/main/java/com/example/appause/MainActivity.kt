@@ -19,6 +19,11 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.example.appause.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -28,10 +33,33 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
+fun getUserDocId(user: FirebaseUser): Int {
+    val db = Firebase.firestore
+    val TAG = "MainActivity"
+    val usersRef = db.collection("users")
+    var id = -1
+    usersRef.whereEqualTo("email", user.email)
+        .get()
+        .addOnSuccessListener { documents ->
+            assert(documents.size() == 1)
+
+            for (doc in documents) {
+                val friendsList = doc.id as Int
+            }
+        }
+        .addOnFailureListener { exception ->
+            Log.w(TAG, "Error getting documents: ", exception)
+        }
+
+    return id
+}
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,7 +95,6 @@ class MainActivity : AppCompatActivity() {
         )
 
 
-
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
             .setAvailableProviders(providers)
@@ -90,10 +117,15 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         setAlarmTomorrow()
+
+
+
+        AppauseNotificationManager(applicationContext).send()
     }
+
     @RequiresApi(Build.VERSION_CODES.M)
     private fun dailyGoalCheck() {
-        if(appTimer != null) {
+        if (appTimer != null) {
             appTimer!!.getDailyUsage()
             GoalTracker.countGoals()
             //schedule new alarm for tomorrow. This is necessary as setRepeating() is inexact
@@ -106,11 +138,15 @@ class MainActivity : AppCompatActivity() {
             // and the total number of goals to firestore
             if (GoalTracker.isMilestone()) {
                 //TODO: notify friends about milestone
+                val user = FirebaseAuth.getInstance().currentUser!!
+                CurrentUser.user = user
+                updateUsersMileStoneField(user, GoalTracker.goalStreakDays)
             }
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun setAlarmTomorrow(){
+    private fun setAlarmTomorrow() {
         val broadcastReceiver = object : BroadcastReceiver() {
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -121,7 +157,12 @@ class MainActivity : AppCompatActivity() {
         }
         val goalIntent = Intent(applicationContext, broadcastReceiver::class.java)
         goalIntent.action = "CountGoals"
-        val alarmIntent = PendingIntent.getBroadcast(applicationContext, 0, goalIntent, PendingIntent.FLAG_IMMUTABLE)
+        val alarmIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            goalIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
         val alarmManager = applicationContext.getSystemService(ALARM_SERVICE) as AlarmManager
         val tomorrowCal: Calendar = Calendar.getInstance()
         tomorrowCal.set(Calendar.HOUR_OF_DAY, 0)
@@ -129,12 +170,18 @@ class MainActivity : AppCompatActivity() {
         tomorrowCal.set(Calendar.SECOND, 0)
         tomorrowCal.add(Calendar.DATE, 1)
         val tomorrowMidnight: Long = tomorrowCal.timeInMillis
-        alarmManager.setWindow(AlarmManager.RTC, tomorrowMidnight, TimeUnit.MINUTES.toMillis(20), alarmIntent)
+        alarmManager.setWindow(
+            AlarmManager.RTC,
+            tomorrowMidnight,
+            TimeUnit.MINUTES.toMillis(20),
+            alarmIntent
+        )
     }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun handlePermissions() {
         @RequiresApi(Build.VERSION_CODES.Q)
-        fun getUsageAccessGranted() : Boolean {
+        fun getUsageAccessGranted(): Boolean {
             return try {
                 val packageManager: PackageManager = this.applicationContext.packageManager
                 val applicationInfo =
@@ -169,12 +216,15 @@ class MainActivity : AppCompatActivity() {
                 this.finish()
                 exitProcess(0)
             }
-            builder.setMessage("Appause requires your app usage data in order to be able " +
-                    "to track your progress in completing your goals!" +
-                    " This data will not leave your device!")
+            builder.setMessage(
+                "Appause requires your app usage data in order to be able " +
+                        "to track your progress in completing your goals!" +
+                        " This data will not leave your device!"
+            )
             builder.show()
         }
     }
+
     /*override fun onResume() {
         super.onResume()
         appTimer?.getCurrentUsage()
@@ -203,9 +253,11 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
                 val signInIntent = AuthUI.getInstance()
                     .createSignInIntentBuilder()
-                    .setAvailableProviders(listOf(
-                        AuthUI.IdpConfig.GoogleBuilder().build()
-                    ))
+                    .setAvailableProviders(
+                        listOf(
+                            AuthUI.IdpConfig.GoogleBuilder().build()
+                        )
+                    )
                     .build()
                 signInLauncher.launch(signInIntent)
             }
@@ -243,6 +295,7 @@ class MainActivity : AppCompatActivity() {
                 Log.w(TAG, "Error adding user", e)
             }
     }
+
     private fun checkIfUserExists(user: FirebaseUser) {
         val db = Firebase.firestore
         val TAG = "MyActivity"
@@ -252,7 +305,7 @@ class MainActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.size() == 0) {
-                        addUser(user)
+                    addUser(user)
                 }
 
             }
@@ -261,56 +314,69 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+
+
+
+    private fun updateUsersMileStoneField(user: FirebaseUser, mileStone: Int) {
+        val db = Firebase.firestore
+        val TAG = "MainActivity"
+        val userDocId = getUserDocId(user)
+        val userRef = db.collection("users").document("$userDocId")
+        userRef.update("milestone", mileStone)
+            .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully updated!") }
+            .addOnFailureListener { e -> Log.w(TAG, "Error updating document", e) }
+    }
+
     private fun dbMethod() {
         val db = Firebase.firestore
         // Create a new user with a first and last name
         var user = hashMapOf(
-                "first" to "Ada",
-                "last" to "Lovelace",
-                "born" to 1815
+            "first" to "Ada",
+            "last" to "Lovelace",
+            "born" to 1815
         )
 
         val TAG = "MyActivity"
 
 // Add a new document with a generated ID
         db.collection("users")
-                .add(user)
-                .addOnSuccessListener { documentReference ->
-                    Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                }
-                .addOnFailureListener { e ->
-                    Log.w(TAG, "Error adding document", e)
-                }
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
 
 
         // Create a new user with a first, middle, and last name
         user = hashMapOf(
-                "first" to "Alan",
-                "middle" to "Mathison",
-                "last" to "Turing",
-                "born" to 1912
+            "first" to "Alan",
+            "middle" to "Mathison",
+            "last" to "Turing",
+            "born" to 1912
         )
 
 // Add a new document with a generated ID
         db.collection("users")
-                .add(user)
-                .addOnSuccessListener { documentReference ->
-                    Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                }
-                .addOnFailureListener { e ->
-                    Log.w(TAG, "Error adding document", e)
-                }
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
 
         db.collection("users")
-                .get()
-                .addOnSuccessListener { result ->
-                    for (document in result) {
-                        Log.d(TAG, "DATABASE OUTPUT - ${document.id} => ${document.data}")
-                    }
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    Log.d(TAG, "DATABASE OUTPUT - ${document.id} => ${document.data}")
                 }
-                .addOnFailureListener { exception ->
-                    Log.w(TAG, "Error getting documents.", exception)
-                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
 
     }
 
