@@ -59,7 +59,6 @@ class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.F
         }
 
         private fun addFriend(view: View) {
-            // todo: clean the raw input to avoid injection attack
             val to = email.text.toString();
             val from = CurrentUser.user.email.toString()
 
