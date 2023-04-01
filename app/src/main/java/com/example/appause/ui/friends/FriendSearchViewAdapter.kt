@@ -16,12 +16,12 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-//TODO: Change the tag for all firebase stuff to "Firebase"
 class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.FriendSearchViewHolder>() {
 
     private var friendsSearchResult: List<UserProfile> = emptyList()
 
     fun updateData(lst: List<UserProfile>) {
+
         friendsSearchResult = lst
         notifyDataSetChanged()
     }
@@ -60,12 +60,12 @@ class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.F
 
         private fun addFriend(view: View) {
             // todo: clean the raw input to avoid injection attack
-            val to = email.getText().toString();
+            val to = email.text.toString();
             val from = CurrentUser.user.email.toString()
 
-            Log.d("TAG", "Sending to $to")
+            Log.d("Firebase", "Sending to $to")
 
-            val TAG = "MyActivity"
+            val TAG = "Firebase"
             val getIdTask = CurrentUser.getUsersId(from)
 
 
@@ -79,37 +79,15 @@ class FriendSearchViewAdapter() : RecyclerView.Adapter<FriendSearchViewAdapter.F
             }
         }
 
-//        fun getSenderId(from: String): Task<String?> {
-//            val db = Firebase.firestore
-//
-//            val docRef = db.collection("users")
-//            val query = docRef.whereEqualTo("email", from).limit(1)
-//
-//            return query.get().continueWith { task ->
-//                if (task.isSuccessful) {
-//                    val result = task.result
-//                    if (result != null && !result.isEmpty) {
-//                        result.documents[0].id
-//                    } else {
-//                        null
-//                    }
-//                } else {
-//                    Log.e("Firebase", "Error getting id")
-//                    null
-//                }
-//            }
-//        }
-
         private fun publishRequest(senderId: String, to: String) {
             val db = Firebase.firestore
             val collectionRef = db.collection("users")
             collectionRef.whereEqualTo("email", to)
+                .limit(1)
                 .get()
                 .addOnSuccessListener { result ->
-                    // todo: clean it up by just taking first index.
-                    // FieldValue.arrayUnion makes a union of distinct elements. Hence a user can't
-                    // send multiple requests to the user before being declined.
-                    for (document in result) {
+                    if (!result.isEmpty) {
+                        val document = result.first()
                         document.reference.update(
                             "friendRequests",
                             FieldValue.arrayUnion(senderId)

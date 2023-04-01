@@ -227,8 +227,8 @@ class MainActivity : AppCompatActivity() {
         val db = Firebase.firestore
         // Create a new user with a first and last name
         var userProfile = hashMapOf(
-            "email" to user.email,
-            "name" to user.displayName,
+            "email" to (user.email?.lowercase(Locale.getDefault()) ?: null),
+            "name" to (user.displayName?.lowercase(Locale.getDefault()) ?: null),
             "friendRequests" to emptyList<String>()
         )
 
