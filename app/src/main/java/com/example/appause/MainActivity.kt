@@ -20,12 +20,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.appause.databinding.ActivityMainBinding
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.QuerySnapshot
@@ -41,7 +37,7 @@ fun getUserDocId(user: FirebaseUser): String {
     val db = Firebase.firestore
     val usersRef = db.collection("users")
     var id = "DUMMY VALUE"
-    var idTask : QuerySnapshot? = null
+    var idTask: QuerySnapshot? = null
     runBlocking {
         idTask = usersRef.whereEqualTo("email", user.email)
             .get().await()
@@ -55,12 +51,6 @@ fun getUserDocId(user: FirebaseUser): String {
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    private val signInLauncher = registerForActivityResult(
-        FirebaseAuthUIActivityResultContract()
-    ) { res ->
-        this.onSignInResult(res)
-    }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStart() {
@@ -78,96 +68,73 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val providers: List<AuthUI.IdpConfig> = listOf(
-            AuthUI.IdpConfig.GoogleBuilder().build()
+        Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
+        // Choose authentication providers
+        appTimer = AppTimer(this.applicationContext)
+        goalTracker.addGoal("youtube", 6000, apps, categories)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val navView: BottomNavigationView = binding.navView
+
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.navigation_home, R.id.navigation_friends
+            )
         )
-        val signInIntent = AuthUI.getInstance()
-            .createSignInIntentBuilder()
-            .setAvailableProviders(providers)
-            .build()
-        signInLauncher.launch(signInIntent)
 
-        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
-                // Choose authentication providers
-                appTimer = AppTimer(this.applicationContext)
-                goalTracker.addGoal("youtube", 6000, apps, categories)
-                binding = ActivityMainBinding.inflate(layoutInflater)
-                setContentView(binding.root)
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
+        setAlarmTomorrow()
+        mileStoneCommunicationManager = MileStoneCommunicationManager(applicationContext)
+        SubscriptionManager.ensureSubscribedToFriends(applicationContext)
 
-                val navView: BottomNavigationView = binding.navView
+        // If the user's document changes, it could be a new friend being added so we
+        // refresh our subscriptions.
+        Firebase.firestore.collection("users")
+            .document(getUserDocId(FirebaseAuth.getInstance().currentUser!!))
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("FIREBASE_LISTENER", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
 
-                val navController = findNavController(R.id.nav_host_fragment_activity_main)
-                // Passing each menu ID as a set of Ids because each
-                // menu should be considered as top level destinations.
-                val appBarConfiguration = AppBarConfiguration(
-                    setOf(
-                        R.id.navigation_home, R.id.navigation_friends
-                    )
-                )
-
-                setupActionBarWithNavController(navController, appBarConfiguration)
-                navView.setupWithNavController(navController)
-                setAlarmTomorrow()
-                mileStoneCommunicationManager = MileStoneCommunicationManager(applicationContext)
-                SubscriptionManager.ensureSubscribedToFriends(applicationContext)
-
-                // If the user's document changes, it could be a new friend being added so we
-                // refresh our subscriptions.
-                Firebase.firestore.collection("users")
-                    .document(getUserDocId(FirebaseAuth.getInstance().currentUser!!)).addSnapshotListener { snapshot, e ->
-                        if (e != null) {
-                            Log.w("FIREBASE_LISTENER", "Listen failed.", e)
-                            return@addSnapshotListener
-                        }
-
-                        if (snapshot != null && snapshot.exists()) {
-                            SubscriptionManager.ensureSubscribedToFriends(applicationContext)
-                        }
-                    }
-
-                if (intent.hasExtra("milestone")) {
-                    val milestone = intent.getIntExtra("milestone", 0)
-                    val friendId = intent.getStringExtra("friendid")
-                    val friendName = intent.getStringExtra("friendname")
-
-                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-                    builder.setPositiveButton("Ok") { dialog, _ ->
-                        dialog.dismiss()
-                        Log.d("CONGRATS", "SENT OUT CONGRATULATIONS")
-                        // Append to friends milestone congratulations list
-                        if (friendId != null) {
-                            Firebase.firestore.collection("users").document(friendId).update(
-                                mutableMapOf(
-                                    "congratulators" to FieldValue.arrayUnion(friendName)
-                                ) as Map<String, Any>
-                            )
-                        }
-                    }
-                    builder.setNegativeButton("No") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    builder.setMessage(
-                        "Congratulate $friendName on the $milestone-day streak?"
-                    )
-
-                    builder.show()
+                if (snapshot != null && snapshot.exists()) {
+                    SubscriptionManager.ensureSubscribedToFriends(applicationContext)
                 }
             }
-            else {
-                val providers: List<AuthUI.IdpConfig> = listOf(
-                    AuthUI.IdpConfig.GoogleBuilder().build()
-                )
-                val signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build()
-                signInLauncher.launch(signInIntent)
+
+        if (intent.hasExtra("milestone")) {
+            val milestone = intent.getIntExtra("milestone", 0)
+            val friendId = intent.getStringExtra("friendid")
+            val friendName = intent.getStringExtra("friendname")
+
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+                Log.d("CONGRATS", "SENT OUT CONGRATULATIONS")
+                // Append to friends milestone congratulations list
+                if (friendId != null) {
+                    Firebase.firestore.collection("users").document(friendId).update(
+                        mutableMapOf(
+                            "congratulators" to FieldValue.arrayUnion(friendName)
+                        ) as Map<String, Any>
+                    )
+                }
             }
+            builder.setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            builder.setMessage(
+                "Congratulate $friendName on the $milestone-day streak?"
+            )
+
+            builder.show()
         }
-        FirebaseAuth.getInstance().addAuthStateListener(listener)
+
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -271,50 +238,6 @@ class MainActivity : AppCompatActivity() {
         appTimer?.getCurrentUsage()
         print(goalTracker.totalTimeCurr)
     }*/
-    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        val response = result.idpResponse
-        Log.v("INFO", ">>>>>>>\t\t\t\tGOT THE RESPONSE: " + response.toString())
-        if (result.resultCode == RESULT_OK) {
-            // Successfully signed in. Non-null asserted because result code is not an error.
-            val user = FirebaseAuth.getInstance().currentUser!!
-            CurrentUser.user = user
-            Log.v("INFO", ">>>>>>>\t\t\t\tUSER: " + user.toString())
-            if (user != null) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Welcome back to Appause " + user.displayName + "!",
-                    Toast.LENGTH_SHORT
-                ).show()
-                checkIfUserExists(user)
-            }
-        } else {
-
-            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-            builder.setPositiveButton("Ok") { dialog, _ ->
-                dialog.dismiss()
-                val signInIntent = AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(
-                        listOf(
-                            AuthUI.IdpConfig.GoogleBuilder().build()
-                        )
-                    )
-                    .build()
-                signInLauncher.launch(signInIntent)
-            }
-
-            builder.setNegativeButton("No, close the app") { dialog, _ ->
-                dialog.dismiss()
-                this.finish()
-                exitProcess(0)
-            }
-            builder.setMessage("Welcome to Appause! Please sign in to get started.")
-            builder.show()
-
-
-        }
-    }
-
 
     private fun addUser(user: FirebaseUser) {
         val db = Firebase.firestore

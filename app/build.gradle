@@ -23,9 +23,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField('String', 'FCM_SERVERKEY', FCM_SERVERKEY)
+            buildConfigField('String', 'SERVER_CLIENT_ID', SERVER_CLIENT_ID)
         }
         all {
             buildConfigField('String', 'FCM_SERVERKEY', FCM_SERVERKEY)
+            buildConfigField('String', 'SERVER_CLIENT_ID', SERVER_CLIENT_ID)
         }
     }
     compileOptions {
