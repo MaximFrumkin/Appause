@@ -111,6 +111,20 @@ class MainActivity : AppCompatActivity() {
         mileStoneCommunicationManager = MileStoneCommunicationManager(applicationContext)
         SubscriptionManager.ensureSubscribedToFriends(applicationContext)
 
+        // If the user's document changes, it could be a new friend being added so we
+        // refresh our subscriptions.
+        Firebase.firestore.collection("users")
+            .document(getUserDocId(FirebaseAuth.getInstance().currentUser!!)).addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("FIREBASE_LISTENER", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                SubscriptionManager.ensureSubscribedToFriends(applicationContext)
+            }
+        }
+
         if (intent.hasExtra("milestone")) {
             val milestone = intent.getIntExtra("milestone", 0)
             val friendId = intent.getStringExtra("friendid")
