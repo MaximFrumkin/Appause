@@ -70,10 +70,12 @@ class ReportsRecyclerAdapter(
         val db = Firebase.firestore
         val usersRef = db.collection("users")
         var congratulatorsTask: QuerySnapshot? = null
-        runBlocking {
-            congratulatorsTask =
-                usersRef.whereEqualTo("email", FirebaseAuth.getInstance().currentUser!!.email)
-                    .get().await()
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            runBlocking {
+                congratulatorsTask =
+                    usersRef.whereEqualTo("email", FirebaseAuth.getInstance().currentUser!!.email)
+                        .get().await()
+            }
         }
         if (congratulatorsTask != null) {
             congratulators =
