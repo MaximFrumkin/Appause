@@ -12,8 +12,6 @@ import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.*
-import com.example.appause.CurrentUser.user
-import com.example.appause.ui.friends.FriendsRecyclerAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore

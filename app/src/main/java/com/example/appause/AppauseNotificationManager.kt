@@ -19,7 +19,7 @@ class AppauseNotificationManager constructor(context: Context, topic: String, ti
     private val TOPIC = "/topics/$topic"
     private val TAG = "NetworkManager"
     private val FCM_API = "https://fcm.googleapis.com/fcm/send"
-    private val serverKey = "key=" + "AAAADTI-dZA:APA91bH8WAJ5sXI1zCyfFhDjdSS3ZgMWhsnC3S_vND7kW3Q2YYEj48k6NZ4a8AzFgU61RFhPoyyBKInmhFFB0K68Oh0dSGvgHWCew7eEqqSDYzaeNd1zR6ZEx5TazodqEhWAB3zfzPg0"
+    private val serverKey = "key=" + "REPLACE ME"
     private val contentType = "application/json"
     private val ctx: Context
 

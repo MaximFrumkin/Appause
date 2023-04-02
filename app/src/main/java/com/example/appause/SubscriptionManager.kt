@@ -72,7 +72,6 @@ class SubscriptionManager {
                             msg = "Subscribe failed"
                         }
                         Log.d("SUBSCRIBING", msg)
-                        Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
                     }
             }
         }
