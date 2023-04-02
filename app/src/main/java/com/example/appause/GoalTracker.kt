@@ -41,6 +41,10 @@ object  GoalTracker {
     var totalTimeYesterday: Long = 0
     var totalTimeCurr: Long = 0
     var usageDataAllCurr :  HashMap<String, AppData> = HashMap<String, AppData>()
+
+    init {
+        goals = goals.toMutableList()
+    }
     fun updateUsageDataAll(key: String, category: String, timeUsedCurr : Long, isDaily : Boolean){
         if(isDaily) {
             usageDataAllYesterday[key]?.timeUsed =
@@ -79,7 +83,7 @@ object  GoalTracker {
     }
     fun addGoal(name: String, time: Long, apps: List<String>, categories: List<String>) {
         val goal = Goal(name, time, apps, categories)
-        goals.add(goal)
+        goals.toMutableList().add(goal)
         print("addGoal finished")
     }
     fun countGoals(){

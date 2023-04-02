@@ -5,23 +5,33 @@ import com.android.volley.*
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.appause.CurrentUser.user
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
 
-// ADAPTED FROM: https://medium.com/@mendhie/send-device-to-device-push-notifications-without-server-side-code-238611c143
-
-class MileStoneCommunicationManager constructor(context: Context, subscriptionManager: SubscriptionManager) {
+class MileStoneCommunicationManager constructor(context: Context) {
     private val ctx: Context
-    private val subManager: SubscriptionManager
 
     init {
         ctx = context
-        subManager = subscriptionManager
     }
 
     fun updateFriendsOnMileStone(streak: Int) {
+        // First, clear the congratulator list!
+        val userId = getUserDocId(user)
+        Firebase.firestore.collection("users/$userId").document().update(
+            mutableMapOf(
+                "congratulators" to emptyArray<String>()
+            ) as Map<String, Any>
+        )
         val title = "Congratulate " + user.displayName + "!"
         val message = "They hit a $streak-day streak!"
-        val notificationManager = AppauseNotificationManager(ctx, subManager.getOwnTopic(), title, message)
-        notificationManager.send()
+        val notificationManager = AppauseNotificationManager(
+            ctx, SubscriptionManager.getOwnTopic(),
+            title, message
+        )
+        notificationManager.send(streak, userId, user.displayName)
     }
 
 }

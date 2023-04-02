@@ -9,69 +9,72 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.appause.CurrentUser.user
 import com.firebase.ui.auth.AuthUI.getApplicationContext
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.json.JSONException
 import org.json.JSONObject
 
 // ADAPTED FROM: https://medium.com/@mendhie/send-device-to-device-push-notifications-without-server-side-code-238611c143
 
-class SubscriptionManager constructor(context: Context) {
-    private val TAG = "NetworkManager"
-    private val ctx: Context
+class SubscriptionManager {
+    companion object {
+        private val SM_TAG = "SubscriptionManager"
 
-    init {
-        ctx = context
-    }
+        fun getOwnTopic(): String {
+            var userId = getUserDocId(FirebaseAuth.getInstance().currentUser!!)
+            Log.d(SM_TAG, "USER_ID EXTRACTED IS ->$userId")
+            return "$userId.milestones"
+        }
 
-    fun getOwnTopic(): String {
-        val userId = getUserDocId(user)
-        return "$userId.milestones"
-    }
+        private fun getFriendTopic(friendId: String): String {
+            return "$friendId.milestones"
+        }
 
-    private fun getFriendTopic(friendId: String): String {
-        return "$friendId.milestones"
-    }
+        private fun getFriendIds(user: FirebaseUser): List<String> {
+            val db = Firebase.firestore
+            val usersRef = db.collection("users")
+            var friends = mutableListOf<String>()
+            var friendsTask: QuerySnapshot? = null
+            runBlocking {
+                friendsTask = usersRef.whereEqualTo("email", user.email)
+                    .get().await()
+            }
 
-    private fun getFriendIds(user: FirebaseUser): List<String> {
-        val db = Firebase.firestore
-        val TAG = "MainActivity"
-        val usersRef = db.collection("users")
-        var friends = mutableListOf<String>()
-        usersRef.whereEqualTo("email", user.email)
-            .get()
-            .addOnSuccessListener { documents ->
-                assert(documents.size() == 1)
+            if (friendsTask != null) {
+                val documents = friendsTask!!.documents
+                assert(documents.size == 1)
 
                 for (doc in documents) {
-                    val friendsList = doc.data["friends"] as List<String>
+                    val friendsList = doc.data?.get("friends") as List<String>
                     for (friend in friendsList) {
                         friends.add(friend)
                     }
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents: ", exception)
-            }
 
-        return friends
-    }
+            return friends
+        }
 
-    fun ensureSubscribedToFriends() {
-        val friendIds = getFriendIds(user)
-        val friendMilestoneTopics = friendIds.map { id -> getFriendTopic(id) }
-        for (friendTopic in friendMilestoneTopics) {
-            Firebase.messaging.subscribeToTopic(friendTopic)
-                .addOnCompleteListener { task ->
-                    var msg = "Subscribed"
-                    if (!task.isSuccessful) {
-                        msg = "Subscribe failed"
+        fun ensureSubscribedToFriends(ctx : Context) {
+            val friendIds = getFriendIds(FirebaseAuth.getInstance().currentUser!!)
+            val friendMilestoneTopics = friendIds.map { id -> getFriendTopic(id) }
+            for (friendTopic in friendMilestoneTopics) {
+                Firebase.messaging.subscribeToTopic(friendTopic)
+                    .addOnCompleteListener { task ->
+                        var msg = "Subscribed"
+                        if (!task.isSuccessful) {
+                            msg = "Subscribe failed"
+                        }
+                        Log.d("SUBSCRIBING", msg)
+                        Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
                     }
-                    Log.d("SUBSCRIBING", msg)
-                    Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
-                }
+            }
         }
     }
 }

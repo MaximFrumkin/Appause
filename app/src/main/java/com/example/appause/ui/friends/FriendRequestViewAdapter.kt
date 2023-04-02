@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.CurrentUser
 import com.example.appause.R
+import com.example.appause.SubscriptionManager
 import com.example.appause.UserProfile
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -94,8 +95,7 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
                 }
             }
 
-
-
+            SubscriptionManager.ensureSubscribedToFriends(mContext)
         }
 
         private fun declineRequest(view : View) {

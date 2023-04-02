@@ -19,11 +19,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
+import com.google.firebase.firestore.FieldValue
 import com.example.appause.databinding.ActivityMainBinding
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -31,33 +27,27 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
-import org.json.JSONException
-import org.json.JSONObject
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-fun getUserDocId(user: FirebaseUser): Int {
+fun getUserDocId(user: FirebaseUser): String {
     val db = Firebase.firestore
-    val TAG = "MainActivity"
     val usersRef = db.collection("users")
-    var id = -1
-    usersRef.whereEqualTo("email", user.email)
-        .get()
-        .addOnSuccessListener { documents ->
-            assert(documents.size() == 1)
-
-            for (doc in documents) {
-                val friendsList = doc.id as Int
-            }
-        }
-        .addOnFailureListener { exception ->
-            Log.w(TAG, "Error getting documents: ", exception)
-        }
-
+    var id = "DUMMY VALUE"
+    var idTask : QuerySnapshot? = null
+    runBlocking {
+        idTask = usersRef.whereEqualTo("email", user.email)
+            .get().await()
+    }
+    if (idTask != null) {
+        id = idTask!!.documents[0].id
+    }
     return id
 }
 
@@ -78,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     val goalTracker: GoalTracker = GoalTracker
+    lateinit var mileStoneCommunicationManager: MileStoneCommunicationManager
     var appTimer: AppTimer? = null
     val apps: List<String> = listOf("com.google.android.youtube")
     val categories: List<String> = emptyList()
@@ -117,10 +108,36 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         setAlarmTomorrow()
+        mileStoneCommunicationManager = MileStoneCommunicationManager(applicationContext)
+        SubscriptionManager.ensureSubscribedToFriends(applicationContext)
 
+        if (intent.hasExtra("milestone")) {
+            val milestone = intent.getIntExtra("milestone", 0)
+            val friendId = intent.getStringExtra("friendid")
+            val friendName = intent.getStringExtra("friendname")
 
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+                Log.d("CONGRATS", "SENT OUT CONGRATULATIONS")
+                // Append to friends milestone congratulations list
+                if (friendId != null) {
+                    Firebase.firestore.collection("users").document(friendId).update(
+                        mutableMapOf(
+                            "congratulators" to FieldValue.arrayUnion(friendName)
+                        ) as Map<String, Any>
+                    )
+                }
+            }
+            builder.setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            builder.setMessage(
+                "Congratulate $friendName on the $milestone-day streak?"
+            )
 
-        AppauseNotificationManager(applicationContext).send()
+            builder.show()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -133,14 +150,8 @@ class MainActivity : AppCompatActivity() {
             // so in order to guarantee that the daily goal check happens within 20 minutes of midnight,
             // we use a setWindow instead, and set it each day
             setAlarmTomorrow()
-            //TODO send the info about goals achieved
-            // from the GoalTracker.numAchievedGoalsYesterday
-            // and the total number of goals to firestore
             if (GoalTracker.isMilestone()) {
-                //TODO: notify friends about milestone
-                val user = FirebaseAuth.getInstance().currentUser!!
-                CurrentUser.user = user
-                updateUsersMileStoneField(user, GoalTracker.goalStreakDays)
+                mileStoneCommunicationManager.updateFriendsOnMileStone(GoalTracker.goalStreakDays)
             }
         }
     }
@@ -312,19 +323,6 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents: ", exception)
             }
-    }
-
-
-
-
-    private fun updateUsersMileStoneField(user: FirebaseUser, mileStone: Int) {
-        val db = Firebase.firestore
-        val TAG = "MainActivity"
-        val userDocId = getUserDocId(user)
-        val userRef = db.collection("users").document("$userDocId")
-        userRef.update("milestone", mileStone)
-            .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully updated!") }
-            .addOnFailureListener { e -> Log.w(TAG, "Error updating document", e) }
     }
 
     private fun dbMethod() {

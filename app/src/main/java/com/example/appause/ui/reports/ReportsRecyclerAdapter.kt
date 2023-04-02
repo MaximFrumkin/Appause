@@ -12,7 +12,14 @@ import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.*
+import com.example.appause.CurrentUser.user
 import com.example.appause.ui.friends.FriendsRecyclerAdapter
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 
 class ReportsRecyclerAdapter(mainActivity: MainActivity, private val listener: OnItemClickListener) : RecyclerView.Adapter<ReportsRecyclerAdapter.ViewHolder>() {
     private val mainActivity: MainActivity = mainActivity
@@ -25,6 +32,10 @@ class ReportsRecyclerAdapter(mainActivity: MainActivity, private val listener: O
     private var totalScreenTime: Long = 0
     // this represents usage for ith category
     private var goalTimeUsedCurr : List<Long> = emptyList()
+    // This represents the list of people who congratulated the current user.
+    private var congratulators : List<String> = emptyList()
+    // Congratulations message
+    private val congratulationsMessage = "Take a bow!"
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun updateData() {
@@ -48,15 +59,38 @@ class ReportsRecyclerAdapter(mainActivity: MainActivity, private val listener: O
         val totalScreenTimeGoal = Goal("", 0, listOf(), listOf())
         totalScreenTimeGoal.goalName = "Total Screen Time"
 
-        val newGoalList : MutableList<Goal> = mutableListOf(totalScreenTimeGoal)
+        ///////////////////
+        // CONGRATULATORS LOGIC
+        ///////////////////
+        val db = Firebase.firestore
+        val usersRef = db.collection("users")
+        var congratulatorsTask : QuerySnapshot? = null
+        runBlocking {
+            congratulatorsTask = usersRef.whereEqualTo("email", FirebaseAuth.getInstance().currentUser!!.email)
+                .get().await()
+        }
+        if (congratulatorsTask != null) {
+            congratulators = congratulatorsTask!!.documents[0].data?.get("congratulators") as List<String>
+        }
+
+        ///////////////////
+
+        val newGoalList : MutableList<Goal> = mutableListOf()
+
+        if (congratulators.isNotEmpty()) {
+            val congratulatorsGoal = Goal(congratulationsMessage, 0, congratulators, listOf())
+            newGoalList.add(congratulatorsGoal)
+        }
+
+        newGoalList.add(totalScreenTimeGoal)
 
         for (goal in GoalTracker.goals) {
             newGoalList.add(goal)
         }
-
         goals = newGoalList
         totalScreenTime = GoalTracker.totalTimeCurr
         goalTimeUsedCurr = GoalTracker.goalTimeUsedCurr
+
         notifyDataSetChanged()
     }
 
@@ -87,6 +121,17 @@ class ReportsRecyclerAdapter(mainActivity: MainActivity, private val listener: O
             holder.hourglass.setImageResource(image)
 
             val usage = "$totalScreenTime h"
+            holder.usageTime.text = usage
+
+        } else if (goals[i].goalName == congratulationsMessage) {
+            // set view for total screen time
+
+            // set image for for total screen time
+            // todo set total screen time image here
+            val image = R.drawable.applause
+            holder.hourglass.setImageResource(image)
+
+            val usage = if (congratulators.size == 1)  "${congratulators[0]} applauded your latest streak!" else "${congratulators[0]} and ${congratulators.size - 1} more applauded your latest streak!"
             holder.usageTime.text = usage
 
         } else {

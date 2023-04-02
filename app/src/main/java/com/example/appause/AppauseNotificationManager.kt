@@ -33,7 +33,7 @@ class AppauseNotificationManager constructor(context: Context, topic: String, ti
             Response.Listener<JSONObject?> { response -> Log.i(TAG, "onResponse: $response") },
             Response.ErrorListener {
                 Toast.makeText(ctx, "Request error", Toast.LENGTH_LONG).show()
-                Log.i(TAG, "onErrorResponse: Didn't work $it")
+                Log.i(TAG, "Fail -> $it")
             }) {
             @Throws(AuthFailureError::class)
             override fun getHeaders(): Map<String, String> {
@@ -46,14 +46,21 @@ class AppauseNotificationManager constructor(context: Context, topic: String, ti
         MySingleton.getInstance(ctx)?.addToRequestQueue(jsonObjectRequest)
     }
 
-    fun send() {
+    fun send(milestone : Int?, userid : String?, friendName : String?) {
         val notification = JSONObject()
         val notifcationBody = JSONObject()
+        val dataBody = JSONObject()
         try {
             notifcationBody.put("title", NOTIFICATION_TITLE)
             notifcationBody.put("message", NOTIFICATION_MESSAGE)
             notification.put("to", TOPIC)
             notification.put("notification", notifcationBody)
+            if (milestone != null) {
+                dataBody.put("milestone", milestone)
+                dataBody.put("friendid", userid)
+                dataBody.put("friendname", friendName)
+            }
+            notification.put("data", dataBody)
         } catch (e: JSONException) {
             Log.e(TAG, "onCreate: " + e.message)
         }
