@@ -51,7 +51,9 @@ class SubscriptionManager {
                 assert(documents.size == 1)
 
                 for (doc in documents) {
-                    val friendsList = doc.data?.get("friends") as List<String>
+                    val friendsListResult = doc.data?.get("friends")
+                    val friendsList =
+                        if (friendsListResult != null) (friendsListResult as List<String>) else emptyList()
                     for (friend in friendsList) {
                         friends.add(friend)
                     }
@@ -61,7 +63,7 @@ class SubscriptionManager {
             return friends
         }
 
-        fun ensureSubscribedToFriends(ctx : Context) {
+        fun ensureSubscribedToFriends(ctx: Context) {
             val friendIds = getFriendIds(FirebaseAuth.getInstance().currentUser!!)
             val friendMilestoneTopics = friendIds.map { id -> getFriendTopic(id) }
             for (friendTopic in friendMilestoneTopics) {
