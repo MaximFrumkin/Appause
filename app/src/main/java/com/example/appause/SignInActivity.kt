@@ -12,7 +12,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import java.util.*
 
 /**
  * Adapted from https://firebase.google.com/docs/auth/android/google-signin
@@ -86,11 +90,47 @@ class SignInActivity : Activity() {
         Log.d(TAG, "UPDATING UI BASED ON $user")
         if (user != null) {
             // Signed in!
+            checkIfUserExists(user)
             val myIntent = Intent(this@SignInActivity, MainActivity::class.java)
             this@SignInActivity.startActivity(myIntent)
         } else {
             signIn()
         }
+    }
+
+    private fun addUser(user: FirebaseUser) {
+        val db = Firebase.firestore
+        // Create a new user with a first and last name
+        var userProfile = hashMapOf(
+            "email" to (user.email?.lowercase(Locale.getDefault()) ?: null),
+            "name" to (user.displayName?.lowercase(Locale.getDefault()) ?: null),
+            "friendRequests" to emptyList<String>()
+        )
+
+        val TAG = "MyActivity"
+
+        runBlocking {
+            db.collection("users")
+                .add(userProfile).await()
+        }
+    }
+
+    private fun checkIfUserExists(user: FirebaseUser) {
+        val db = Firebase.firestore
+        val TAG = "MyActivity"
+
+        val usersRef = db.collection("users")
+        usersRef.whereEqualTo("email", user.email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.size() == 0) {
+                    addUser(user)
+                }
+
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
     }
 
     companion object {
