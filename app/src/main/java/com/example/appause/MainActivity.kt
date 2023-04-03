@@ -33,7 +33,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
-fun getUserDocId(user: FirebaseUser): String {
+fun getUserDocIdBlocking(user: FirebaseUser): String {
     val db = Firebase.firestore
     val usersRef = db.collection("users")
     var id = "DUMMY VALUE"
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         // If the user's document changes, it could be a new friend being added so we
         // refresh our subscriptions.
         Firebase.firestore.collection("users")
-            .document(getUserDocId(FirebaseAuth.getInstance().currentUser!!))
+            .document(getUserDocIdBlocking(FirebaseAuth.getInstance().currentUser!!))
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w("FIREBASE_LISTENER", "Listen failed.", e)

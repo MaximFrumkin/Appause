@@ -7,12 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.appause.CurrentUser
-import com.example.appause.R
-import com.example.appause.SubscriptionManager
-import com.example.appause.UserProfile
+import com.example.appause.*
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -90,6 +86,7 @@ class FriendRequestViewAdapter() : RecyclerView.Adapter<FriendRequestViewAdapter
                 if (task.isSuccessful) {
                     val senderId = task.result.toString()
                     addFriendInDB(senderId, CurrentUser.user.email.toString())
+                    addFriendInDB(getUserDocIdBlocking(CurrentUser.user), email)
                 } else {
                     Log.e("Firebase", "Error removing request", task.exception)
                 }

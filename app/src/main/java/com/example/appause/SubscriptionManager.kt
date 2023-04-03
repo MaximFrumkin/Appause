@@ -1,14 +1,7 @@
 package com.example.appause
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import com.android.volley.*
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import com.example.appause.CurrentUser.user
-import com.firebase.ui.auth.AuthUI.getApplicationContext
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.QuerySnapshot
@@ -17,8 +10,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
-import org.json.JSONException
-import org.json.JSONObject
 
 // ADAPTED FROM: https://medium.com/@mendhie/send-device-to-device-push-notifications-without-server-side-code-238611c143
 
@@ -27,7 +18,7 @@ class SubscriptionManager {
         private val SM_TAG = "SubscriptionManager"
 
         fun getOwnTopic(): String {
-            var userId = getUserDocId(FirebaseAuth.getInstance().currentUser!!)
+            var userId = getUserDocIdBlocking(FirebaseAuth.getInstance().currentUser!!)
             Log.d(SM_TAG, "USER_ID EXTRACTED IS ->$userId")
             return "$userId.milestones"
         }
