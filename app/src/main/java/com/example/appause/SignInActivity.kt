@@ -92,6 +92,7 @@ class SignInActivity : Activity() {
         Log.d(TAG, "UPDATING UI BASED ON $user")
         if (user != null) {
             // Signed in!
+            CurrentUser.user = user
             checkIfUserExists(user)
             val myIntent = Intent(this@SignInActivity, MainActivity::class.java)
             this@SignInActivity.startActivity(myIntent)
