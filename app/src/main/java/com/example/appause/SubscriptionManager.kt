@@ -27,7 +27,7 @@ class SubscriptionManager {
             return "$friendId.milestones"
         }
 
-        private fun getFriendIds(user: FirebaseUser): List<String> {
+        fun getFriendIds(user: FirebaseUser): List<String> {
             val db = Firebase.firestore
             val usersRef = db.collection("users")
             var friends = mutableListOf<String>()

@@ -1,5 +1,8 @@
 package com.example.appause
 
+import android.util.Log
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.util.HashMap
 
 /**
@@ -95,10 +98,18 @@ object  GoalTracker {
         }
         if(numAchievedGoalsYesterday == goalTimeAllowed.size){
             goalStreakDays++
-        }else{
+        }else {
             goalStreakDays = 0;
         }
+
+        Firebase.firestore.collection("users").document(getUserDocIdBlocking(CurrentUser.user))
+            .update(
+                mutableMapOf(
+                    "goalsCompleted" to numAchievedGoalsYesterday
+                ) as Map<String, Any>
+            )
     }
+
     fun isMilestone(): Boolean {
         if (goalStreakDays == 0) {
             return false;

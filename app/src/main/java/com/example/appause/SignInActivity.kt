@@ -24,6 +24,7 @@ import java.util.*
  * Adapted from https://firebase.google.com/docs/auth/android/google-signin
  */
 class SignInActivity : Activity() {
+    private lateinit var MOCKED_TOTAL_GOALS: Integer
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -107,7 +108,9 @@ class SignInActivity : Activity() {
         var userProfile = hashMapOf(
             "email" to (user.email?.lowercase(Locale.getDefault()) ?: null),
             "name" to (user.displayName?.lowercase(Locale.getDefault()) ?: null),
-            "friendRequests" to emptyList<String>()
+            "friendRequests" to emptyList<String>(),
+            "totalGoals" to MOCKED_TOTAL_GOALS,
+            "completedGoals" to 0
         )
 
         val TAG = "MyActivity"
