@@ -2,6 +2,7 @@ package com.example.appause
 
 import android.app.Activity
 import android.content.Intent
+import android.media.MediaCodec.QueueRequest
 import android.os.Bundle
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -12,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
@@ -120,17 +122,19 @@ class SignInActivity : Activity() {
         val TAG = "MyActivity"
 
         val usersRef = db.collection("users")
-        usersRef.whereEqualTo("email", user.email)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.size() == 0) {
-                    addUser(user)
-                }
+        var checkTask : QuerySnapshot? = null
+        runBlocking {
+            checkTask = usersRef.whereEqualTo("email", user.email)
+                .get().await()
+        }
 
+        if (checkTask == null) {
+            addUser(user)
+        } else {
+            if (checkTask!!.documents.isEmpty()) {
+                addUser(user)
             }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents: ", exception)
-            }
+        }
     }
 
     companion object {
