@@ -78,8 +78,11 @@ class ReportsRecyclerAdapter(
             }
         }
         if (congratulatorsTask != null) {
-            congratulators =
-                congratulatorsTask!!.documents[0].data?.get("congratulators") as List<String>
+            val congratulatorsResult =
+                congratulatorsTask!!.documents[0].data?.get("congratulators")
+            if (congratulatorsResult != null) {
+                congratulators = congratulatorsResult as List<String>
+            }
         }
 
         ///////////////////
