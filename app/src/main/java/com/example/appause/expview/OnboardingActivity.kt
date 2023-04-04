@@ -8,10 +8,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ExpandableListView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.appause.AppCategory
-import com.example.appause.AppTimer
-import com.example.appause.CheckedActivity
-import com.example.appause.R
+import com.example.appause.*
 import kotlinx.coroutines.runBlocking
 
 
@@ -29,7 +26,8 @@ class OnboardingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_onboarding)
         val btn = findViewById<Button>(R.id.btn)
         btn.setOnClickListener(View.OnClickListener {
-            val intent = Intent(this, CheckedActivity::class.java)
+//            val intent = Intent(this, CheckedActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         })
         setupReferences()

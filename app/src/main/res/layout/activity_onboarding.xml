@@ -5,21 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
     tools:context=".expview.OnboardingActivity">
 
     <ExpandableListView
         android:id="@+id/lvCategory"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="569dp"
         android:childDivider="@color/colorBlack"
         android:divider="@null"
-        android:dividerHeight="0dp" >
+        android:dividerHeight="0dp">
 
     </ExpandableListView>
+
     <Button
         android:id="@+id/btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button" />
+        android:layout_width="210dp"
+        android:layout_height="50dp"
+        android:text="Confirm" />
 
-   </LinearLayout>
+    <Button
+        android:id="@+id/btn2"
+        android:layout_width="208dp"
+        android:layout_height="50dp"
+        android:text="Set another goal" />
+
+</LinearLayout>
