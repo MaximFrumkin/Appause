@@ -1,6 +1,6 @@
 package com.example.appause
 
-import android.util.Log
+import android.widget.EditText
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.util.HashMap
@@ -48,7 +48,7 @@ object  GoalTracker {
     init {
         goals = goals.toMutableList()
     }
-    fun updateUsageDataAll(key: String, category: String, timeUsedCurr : Long, isDaily : Boolean){
+    fun updateUsageDataAll(key: String, category: String, timeUsedCurr : Long, isDaily : Boolean) {
         if(isDaily) {
             usageDataAllYesterday[key]?.timeUsed =
                 usageDataAllYesterday[key]?.timeUsed?.plus(
@@ -86,7 +86,7 @@ object  GoalTracker {
     }
     fun addGoal(name: String, time: Long, apps: List<String>, categories: List<String>) {
         val goal = Goal(name, time, apps, categories)
-        goals.toMutableList().add(goal)
+        goals.add(goal)
         print("addGoal finished")
     }
     fun countGoals(){

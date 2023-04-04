@@ -6,28 +6,82 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ExpandableListView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appause.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 
 
 class OnboardingActivity : AppCompatActivity() {
-    private var btn: Button? = null
     private var lvCategory: ExpandableListView? = null
     private var arCategory: ArrayList<DataItem>? = null
     private var arSubCategory: ArrayList<SubCategoryItem?>? = null
-    private val arSubCategoryFinal: ArrayList<ArrayList<SubCategoryItem>>? = null
     private var parentItems: ArrayList<HashMap<String, String?>>? = null
     private var childItems: ArrayList<ArrayList<HashMap<String, String?>>>? = null
     private var myCategoriesExpandableListAdapter: MyCategoriesExpandableListAdapter? = null
+
+    private fun addGoalToGoalTracker() {
+        // Add the current goal to the goal tracker!
+        var appCategories : MutableList<String> = mutableListOf()
+        var appNames : MutableList<String> = mutableListOf()
+        for (i in MyCategoriesExpandableListAdapter.parentItems!!.indices) {
+            val isChecked: String = MyCategoriesExpandableListAdapter.parentItems!!.get(i)
+                .get(ConstantManager.Parameter.IS_CHECKED)!!
+            if (isChecked.equals(ConstantManager.Parameter.CHECK_BOX_CHECKED_TRUE, ignoreCase = true)) {
+                appCategories.add(MyCategoriesExpandableListAdapter.parentItems!!.get(i).get(ConstantManager.Parameter.CATEGORY_NAME).toString())
+            } else {
+                for (j in MyCategoriesExpandableListAdapter.childItems!!.get(i).indices) {
+                    val isChildChecked: String =
+                        MyCategoriesExpandableListAdapter.childItems!!.get(i)[j]
+                            .get(ConstantManager.Parameter.IS_CHECKED)!!
+                    if (isChildChecked.equals(
+                            ConstantManager.Parameter.CHECK_BOX_CHECKED_TRUE,
+                            ignoreCase = true
+                        )
+                    ) {
+                        appNames.add(MyCategoriesExpandableListAdapter.childItems!!.get(i)[j].get(ConstantManager.Parameter.SUB_CATEGORY_NAME).toString())
+                    }
+                }
+            }
+        }
+        Log.v("ONBOARDING", ">>>>>>CATEGORIES: $appCategories")
+        Log.v("ONBOARDING", ">>>>>>APPNAMES: $appNames")
+
+
+        val goalName = findViewById<EditText>(R.id.editTextTextGoalName).text.toString()
+        GoalTracker.addGoal(goalName, 0, appNames, appCategories)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding)
-        val btn = findViewById<Button>(R.id.btn)
-        btn.setOnClickListener(View.OnClickListener {
-//            val intent = Intent(this, CheckedActivity::class.java)
+        val confirmBtn = findViewById<Button>(R.id.btn)
+        confirmBtn.setOnClickListener(View.OnClickListener {
+            addGoalToGoalTracker()
+
+            // The GoalTracker now has ALL the goals this user has!
+            // We can now update firebase
+            runBlocking {
+                Firebase.firestore.collection("users")
+                    .document(getUserDocIdBlocking(CurrentUser.user))
+                    .update(
+                        mutableMapOf(
+                            "totalGoals" to GoalTracker.goals.size
+                        ) as Map<String, Any>
+                    ).await()
+            }
+            Log.v("ONBOARDING", "UPDATED TOTAL GOALS ${GoalTracker.goals.size}")
             val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        })
+
+        val addAnotherGoalButton = findViewById<Button>(R.id.btn2)
+        addAnotherGoalButton.setOnClickListener(View.OnClickListener {
+            addGoalToGoalTracker()
+            val intent = Intent(this, OnboardingActivity::class.java)
             startActivity(intent)
         })
         setupReferences()
@@ -40,7 +94,6 @@ class OnboardingActivity : AppCompatActivity() {
 
         for (packageInfo in packages) {
             val packageName = packageInfo.packageName
-            val appNameId = packageInfo.labelRes
             val appName = pm.getApplicationLabel(packageInfo).toString()
             var category: AppCategory? = null
             runBlocking {
