@@ -10,6 +10,8 @@ import androidx.annotation.RequiresApi
 import com.google.android.datatransport.runtime.scheduling.persistence.EventStoreModule_PackageNameFactory.packageName
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import java.util.*
 
 
@@ -40,24 +42,37 @@ class AppTimer(private val context: Context) {
         @Suppress("BlockingMethodInNonBlockingContext")
         private suspend fun parseAndExtractCategory(url: String): String? =
             withContext(Dispatchers.IO) {
-            return@withContext try {
-                val text = Jsoup.connect(url).get()?.select("span[itemprop=genre]") ?: return@withContext null
-                val href = text.attr("abs:href")
+                return@withContext try {
+                    val doc: Document = Jsoup.connect(url).get()
+                    val span: Element? = doc.select("div[itemprop=genre]").first()
+                    if (span == null) {
+                        //Log.v("null", "span was null")
+                        null
+                    } else {
+                        val text = span.text()
+                        val link = span.select("a[href]").first()
+                        //val a = Log.v("span", text)
+                        val b = getCategoryTypeByHref(link!!.attr("abs:href"))
+                        //link!!.text().substring( link!!.text().indexOf(CATEGORY_STRING) + CAT_SIZE,  link!!.text().length)
+                        b
+                    }
+                    //val href = text.attr("abs:href")
 
-                if (href != null && href.length > 4 && href.contains(CATEGORY_STRING)) {
+                    /*if (href != null && href.length > 4 && href.contains(CATEGORY_STRING)) {
                     Log.v("href", "href path")
                     getCategoryTypeByHref(href)
                 } else {
                     Log.v("null", "NULL path")
                     null
+                }*/
+                } catch (e: Throwable) {
+                    null
                 }
-            } catch (e: Throwable) {
-                null
             }
-        }
+
 
         private fun getCategoryTypeByHref(href: String): String {
-            Log.v("category type", href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length))
+            Log.v("category", href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length))
             return href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length)
         }
     }
