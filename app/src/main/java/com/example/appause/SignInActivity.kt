@@ -5,6 +5,7 @@ import android.content.Intent
 import android.media.MediaCodec.QueueRequest
 import android.os.Bundle
 import android.util.Log
+import com.example.appause.expview.OnboardingActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,9 +25,10 @@ import java.util.*
  * Adapted from https://firebase.google.com/docs/auth/android/google-signin
  */
 class SignInActivity : Activity() {
-    private lateinit var MOCKED_TOTAL_GOALS: Integer
+    private var MOCKED_TOTAL_GOALS: Int = 0
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private var firstTimeUser : Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,8 +96,9 @@ class SignInActivity : Activity() {
         if (user != null) {
             // Signed in!
             CurrentUser.user = user
+            Log.v("SIGNING IN", "USER>>>$user")
             checkIfUserExists(user)
-            val myIntent = Intent(this@SignInActivity, MainActivity::class.java)
+            val myIntent = if (firstTimeUser) Intent(this@SignInActivity, OnboardingActivity::class.java) else Intent(this@SignInActivity, MainActivity::class.java)
             this@SignInActivity.startActivity(myIntent)
         } else {
             signIn()
@@ -137,6 +140,8 @@ class SignInActivity : Activity() {
         } else {
             if (checkTask!!.documents.isEmpty()) {
                 addUser(user)
+            } else {
+                firstTimeUser = false
             }
         }
     }

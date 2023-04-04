@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.CurrentUser
 import com.example.appause.R
 import com.example.appause.SubscriptionManager
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -29,7 +30,7 @@ class FriendsRecyclerAdapter(private val listener: OnItemClickListener) : Recycl
     private val goalStatuses = mutableListOf<FriendGoalStatus>()
 
     init {
-        val friends = SubscriptionManager.getFriendIds(CurrentUser.user)
+        val friends = SubscriptionManager.getFriendIds(Firebase.auth.currentUser!!)
         Log.v("INFO", ">>>>>>>\t\t\t\t${friends.toString()}")
         for (f in friends) {
             var friendDoc : DocumentSnapshot? = null
