@@ -1,40 +1,27 @@
 package com.example.appause.ui.reports
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appause.R
 import androidx.compose.runtime.Composable
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Card
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
-import com.google.firebase.annotations.PreviewApi
-import java.util.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
 
 
 class DetailedUsageActivity : AppCompatActivity() {
@@ -60,6 +47,12 @@ class DetailedUsageActivity : AppCompatActivity() {
 
         setContent {
             customListView(goalName.toString(), categoryList, perCategoryUsageList, totalGoalTime)
+        }
+
+        val button = findViewById<Button>(R.id.GoalSettings)
+        button.setOnClickListener {
+            val intent = Intent(this, GoalEditFragment::class.java)
+            startActivity(intent)
         }
 
     }

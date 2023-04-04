@@ -4,6 +4,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/GoalSettings"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="351dp"
+        android:layout_marginTop="13dp"
+
+        android:layout_marginEnd="9dp"
+        android:text="Goal Settings" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
