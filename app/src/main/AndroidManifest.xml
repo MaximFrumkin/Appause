@@ -17,6 +17,12 @@
         android:theme="@style/Theme.Appause"
         tools:targetApi="31">
         <activity
+            android:name=".CheckedActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".expview.OnboardingActivity"
+            android:exported="false"/>
+        <activity
             android:name=".ui.friends.FriendRequestActivity"
             android:exported="false"
             android:label="@string/title_activity_friend_request"
