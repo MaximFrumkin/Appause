@@ -1,13 +1,18 @@
 package com.example.appause.expview
-import com.example.appause.R
+
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ExpandableListView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appause.AppCategory
+import com.example.appause.AppTimer
 import com.example.appause.CheckedActivity
+import com.example.appause.R
+import kotlinx.coroutines.runBlocking
 
 
 class OnboardingActivity : AppCompatActivity() {
@@ -31,53 +36,55 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun setupReferences() {
+        val pm = packageManager
+        val packages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+        val categoryToAppsMap = emptyMap<AppCategory, MutableList<String>>().toMutableMap()
+
+        for (packageInfo in packages) {
+            val packageName = packageInfo.packageName
+            val appNameId = packageInfo.labelRes
+            val appName = pm.getApplicationLabel(packageInfo).toString()
+            var category: AppCategory? = null
+            runBlocking {
+                category = AppTimer.AppCategoryService().fetchCategory(packageName)
+            }
+
+            if (category != null && category!! != AppCategory.OTHER) {
+                if (categoryToAppsMap.containsKey(category)) {
+                    categoryToAppsMap[category]?.add(appName)
+                } else {
+                    categoryToAppsMap[category!!] = mutableListOf<String>()
+                    categoryToAppsMap[category]?.add(appName)
+                }
+            }
+        }
+
+        Log.v("ONBOARDING>>>>>>", "$categoryToAppsMap")
+
+
         lvCategory = findViewById<ExpandableListView>(R.id.lvCategory)
         arCategory = ArrayList()
         arSubCategory = ArrayList()
         parentItems = ArrayList()
         childItems = ArrayList()
-        var dataItem = DataItem()
-        dataItem.setCategoryId("1")
-        dataItem.setCategoryName("Adventure")
-        arSubCategory = ArrayList()
-        for (i in 1..5) {
-            val subCategoryItem = SubCategoryItem()
-            subCategoryItem.setCategoryId(i.toString())
-            subCategoryItem.setIsChecked(ConstantManager.Parameter.CHECK_BOX_CHECKED_FALSE)
-            subCategoryItem.setSubCategoryName("Adventure: $i")
-            arSubCategory!!.add(subCategoryItem)
+
+        for ((categoryId, appNames) in categoryToAppsMap) {
+            var dataItem = DataItem()
+            dataItem.setCategoryId(categoryId.ordinal.toString())
+            dataItem.setCategoryName(categoryId.toString())
+            arSubCategory = ArrayList()
+            for (appName in appNames) {
+                val subCategoryItem = SubCategoryItem()
+                subCategoryItem.setCategoryId(categoryId.toString())
+                subCategoryItem.setIsChecked(ConstantManager.Parameter.CHECK_BOX_CHECKED_FALSE)
+                subCategoryItem.setSubCategoryName(appName)
+                arSubCategory!!.add(subCategoryItem)
+            }
+            dataItem.setSubCategory(arSubCategory)
+            arCategory!!.add(dataItem)
         }
-        dataItem.setSubCategory(arSubCategory)
-        arCategory!!.add(dataItem)
-        dataItem = DataItem()
-        dataItem.setCategoryId("2")
-        dataItem.setCategoryName("Art")
-        arSubCategory = ArrayList()
-        for (j in 1..5) {
-            val subCategoryItem = SubCategoryItem()
-            subCategoryItem.setCategoryId(j.toString())
-            subCategoryItem.setIsChecked(ConstantManager.Parameter.CHECK_BOX_CHECKED_FALSE)
-            subCategoryItem.setSubCategoryName("Art: $j")
-            arSubCategory!!.add(subCategoryItem)
-        }
-        dataItem.setSubCategory(arSubCategory)
-        arCategory!!.add(dataItem)
-        dataItem = DataItem()
-        dataItem.setCategoryId("3")
-        dataItem.setCategoryName("Cooking")
-        arSubCategory = ArrayList()
-        for (k in 1..5) {
-            val subCategoryItem = SubCategoryItem()
-            subCategoryItem.setCategoryId(k.toString())
-            subCategoryItem.setIsChecked(ConstantManager.Parameter.CHECK_BOX_CHECKED_FALSE)
-            subCategoryItem.setSubCategoryName("Cooking: $k")
-            arSubCategory!!.add(subCategoryItem)
-        }
-        dataItem.setSubCategory(arSubCategory)
-        arCategory!!.add(dataItem)
         Log.d("TAG", "setupReferences: " + arCategory!!.size)
         for (data in arCategory!!) {
-//                        Log.i("Item id",item.id);
             val childArrayList = ArrayList<HashMap<String, String?>>()
             val mapParent = HashMap<String, String?>()
             mapParent[ConstantManager.Parameter.CATEGORY_ID] = data.getCategoryId()

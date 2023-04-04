@@ -33,7 +33,7 @@ class AppTimer(private val context: Context) {
             private const val CATEGORY_STRING = "category/"
         }
 
-        suspend public fun fetchCategory(packageName: String): AppCategory {
+        suspend fun fetchCategory(packageName: String): AppCategory {
             val url = "$APP_URL$packageName&hl=en"
             val categoryRaw = parseAndExtractCategory(url) ?: return AppCategory.OTHER
             return AppCategory.fromCategoryName(categoryRaw)
