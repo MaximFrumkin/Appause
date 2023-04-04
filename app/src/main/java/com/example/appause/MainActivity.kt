@@ -233,11 +233,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*override fun onResume() {
+    override fun onResume() {
         super.onResume()
         appTimer?.getCurrentUsage()
-        print(goalTracker.totalTimeCurr)
-    }*/
+        Log.v("INFO", ">>>>>>>\t\t\t\t${goalTracker.totalTimeCurr}")
+    }
 
     private fun addUser(user: FirebaseUser) {
         val db = Firebase.firestore

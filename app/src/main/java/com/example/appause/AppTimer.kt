@@ -3,11 +3,15 @@ package com.example.appause
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import com.google.android.datatransport.runtime.scheduling.persistence.EventStoreModule_PackageNameFactory.packageName
+import kotlinx.coroutines.*
+import org.jsoup.Jsoup
 import java.util.*
+
 
 class AppTimer(private val context: Context) {
     val pm: PackageManager = context.getPackageManager();
@@ -17,6 +21,46 @@ class AppTimer(private val context: Context) {
      *  Get the usage data from midnight to the current time, and store it in the [GoalTracker] object.
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+
+
+
+    class AppCategoryService {
+        companion object {
+            private const val APP_URL = "https://play.google.com/store/apps/details?id="
+            private const val CAT_SIZE = 9
+            private const val CATEGORY_STRING = "category/"
+        }
+
+        suspend public fun fetchCategory(packageName: String): AppCategory {
+            val url = "$APP_URL$packageName&hl=en"
+            val categoryRaw = parseAndExtractCategory(url) ?: return AppCategory.OTHER
+            return AppCategory.fromCategoryName(categoryRaw)
+        }
+
+        @Suppress("BlockingMethodInNonBlockingContext")
+        private suspend fun parseAndExtractCategory(url: String): String? =
+            withContext(Dispatchers.IO) {
+            return@withContext try {
+                val text = Jsoup.connect(url).get()?.select("span[itemprop=genre]") ?: return@withContext null
+                val href = text.attr("abs:href")
+
+                if (href != null && href.length > 4 && href.contains(CATEGORY_STRING)) {
+                    Log.v("href", "href path")
+                    getCategoryTypeByHref(href)
+                } else {
+                    Log.v("null", "NULL path")
+                    null
+                }
+            } catch (e: Throwable) {
+                null
+            }
+        }
+
+        private fun getCategoryTypeByHref(href: String): String {
+            Log.v("category type", href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length))
+            return href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length)
+        }
+    }
     fun getCurrentUsage(){
         val midnightCal: Calendar = Calendar.getInstance()
         midnightCal.set(Calendar.HOUR_OF_DAY, 0)
@@ -77,13 +121,14 @@ class AppTimer(private val context: Context) {
             }
         }
         eventsGroupedByApp.forEach { appEvents ->
-            var applicationInfo: ApplicationInfo = pm.getApplicationInfo(appEvents.key, 0)
-            var appCategory: Int = 0
-            var categoryTitle: String = ""
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                appCategory = applicationInfo.category
-                categoryTitle = ApplicationInfo.getCategoryTitle(context, appCategory) as String
+            val appService: AppCategoryService  = AppCategoryService()
+            var name = appEvents.key
+            lateinit var  appCategory: AppCategory
+            runBlocking {
+                appCategory = appService.fetchCategory(name)
             }
+            val categoryTitle = appCategory.toString()
+            Log.v("USAGE", "$name, $categoryTitle")
             // TODO: here we can look at which goals are relevant to this app
             //  and add the data to GoalTracker
             for(i in 0..appEvents.value.size - 2) {
