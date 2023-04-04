@@ -9,28 +9,58 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.appause.CurrentUser
 import com.example.appause.R
+import com.example.appause.SubscriptionManager
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import java.util.concurrent.Flow.Subscription
 
 class FriendsRecyclerAdapter(private val listener: OnItemClickListener) : RecyclerView.Adapter<FriendsRecyclerAdapter.ViewHolder>() {
-    private val friendName = arrayOf("Alexander", "Emma", "Nate L.", "You", "Jordan")
 
-    private val friendGoalRatioAchievedText = arrayOf("Achieved 5/5 of his goals!", "Achieved 6/6 of her goals!", "Achieved 2/2 of his goals!", "Achieved 1/4 of your goals!", "Achieved 3/3 of his goals!")
+    class FriendGoalStatus(val friendName: String, val goalsAchieved: Long, val totalGoals: Long) {
 
-    private val goalsAchieved = arrayOf(5, 6, 2, 1, 3)
-    private val totalGoals = arrayOf(5, 6, 2, 4, 3)
+    }
+
+    private val goalStatuses = mutableListOf<FriendGoalStatus>()
+
+    init {
+        val friends = SubscriptionManager.getFriendIds(CurrentUser.user)
+        Log.v("INFO", ">>>>>>>\t\t\t\t${friends.toString()}")
+        for (f in friends) {
+            var friendDoc : DocumentSnapshot? = null
+            runBlocking {
+                friendDoc = Firebase.firestore.collection("users").document(f).get().await()
+            }
+            if (friendDoc != null) {
+                var name = friendDoc!!.data?.get("name").toString()
+                Log.v("INFO", ">>>>>>>\t\t\t\t$name ++++++ ${friendDoc!!.data?.toString()}")
+                var goalsAchieved = friendDoc!!.data?.get("completedGoals") as Long
+                var totalGoals = friendDoc!!.data?.get("totalGoals") as Long
+                goalStatuses.add(FriendGoalStatus(name, goalsAchieved, totalGoals))
+            }
+        }
+    }
+
 
     interface OnItemClickListener {
         fun onItemClick(imageNo: Int, name: String, goalRatioAchieved: String)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.friends_list_item, parent, false)
+
+
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.friends_list_item, parent, false)
             return ViewHolder(v)
     }
 
 
     override fun onBindViewHolder(holder: FriendsRecyclerAdapter.ViewHolder, i: Int) {
-        val image : Int = if (goalsAchieved[i] / totalGoals[i] == 1) {
+        val image : Int = if ((goalStatuses[i].goalsAchieved / goalStatuses[i].totalGoals) == 1L) {
             R.drawable.gold_trophy
         } else {
             R.drawable.silver_trophy
@@ -38,13 +68,14 @@ class FriendsRecyclerAdapter(private val listener: OnItemClickListener) : Recycl
         }
 
         holder.trophy.setImageResource(image)
-        holder.friendName.text = friendName[i]
-        holder.friendGoalRatioAchievedText.text = friendGoalRatioAchievedText[i]
-        holder.bind(image, friendName[i], friendGoalRatioAchievedText[i], listener)
+        holder.friendName.text = goalStatuses[i].friendName
+        var goalString = "Achieved " + goalStatuses[i].goalsAchieved.toString() + "/" + goalStatuses[i].totalGoals.toString() + " of their goals!"
+        holder.friendGoalRatioAchievedText.text = goalString
+        holder.bind(image, goalStatuses[i].friendName, goalString, listener)
     }
 
     override fun getItemCount(): Int {
-        return friendName.size
+        return goalStatuses.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

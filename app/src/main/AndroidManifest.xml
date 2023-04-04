@@ -23,6 +23,19 @@
             android:name=".expview.OnboardingActivity"
             android:exported="false"/>
         <activity
+            android:name=".SignInActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ui.friends.FriendRequestActivity"
             android:exported="false"
             android:label="@string/title_activity_friend_request"
@@ -36,18 +49,32 @@
             android:label="@string/title_activity_friend_report"
             android:theme="@style/Theme.Appause.NoActionBar" />
         <activity
+            android:name=".ui.reports.DetailedUsageActivity"
+            android:exported="false"
+            android:label="@string/title_activity_detail_usage"
+            android:theme="@style/Theme.Appause.NoActionBar" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <service
+            android:name=".AppauseFirebaseInstanceIDService"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

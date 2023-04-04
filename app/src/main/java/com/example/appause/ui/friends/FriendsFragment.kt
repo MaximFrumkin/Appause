@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appause.R
 import com.example.appause.databinding.FragmentReportsBinding
-import com.example.appause.ui.reports.RecyclerAdapter
 
 class FriendsFragment : Fragment() {
     private var _binding: FragmentReportsBinding? = null
