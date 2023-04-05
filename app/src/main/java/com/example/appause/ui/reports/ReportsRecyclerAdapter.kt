@@ -50,14 +50,14 @@ class ReportsRecyclerAdapter(
         // TODO remove this block later
         /////////////////////////////////////////////////////////////////////////////////////////////
         // Fill in GoalTracker object with dummy data and use that dummy data. TODO Later, do not fill the object
-        GoalTracker.totalTimeCurr = 7
+        /*GoalTracker.totalTimeCurr = 7
         GoalTracker.goalTimeUsedCurr = listOf(2, 3, 1, 1, 0)
         val goal1 = Goal("Social", 2, listOf(), listOf())
         val goal2 = Goal("Productivity", 5, listOf(), listOf())
         val goal3 = Goal("Video", 2, listOf(), listOf())
         val goal4 = Goal("Entertainment", 1, listOf(), listOf())
         val goal5 = Goal("Movies", 1, listOf(), listOf())
-        GoalTracker.goals = listOf(goal1, goal2, goal3, goal4, goal5) as MutableList<Goal>
+        GoalTracker.goals = listOf(goal1, goal2, goal3, goal4, goal5) as MutableList<Goal>*/
         /////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -167,6 +167,7 @@ class ReportsRecyclerAdapter(
 
     private fun getViewImage(position: Int): Int {
 
+        Log.v("REPORTSRECYCLER>>", "POSITION: $position CONGRATSSIZE: ${congratulators.isNotEmpty()}")
         // If we display congratulators then there is an extra "Goal" object
         val timeUsed = goalTimeUsedCurr[position - 1 - (if (congratulators.isNotEmpty()) 1 else 0)]
 

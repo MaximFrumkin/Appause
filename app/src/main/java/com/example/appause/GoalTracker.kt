@@ -36,9 +36,9 @@ object  GoalTracker {
     //val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf()
     //val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf()
     var usageDataAllYesterday :  HashMap<String, AppData> = HashMap<String, AppData>()
-    var goalTimeUsedYesterday: List<Long> = emptyList()
-    var goalTimeAllowed: List<Long> = emptyList() //TODO: @Lanney populate this like goalTimeUsedYesterday but for the amount of time allowed for each goal
-    var goalTimeUsedCurr: List<Long> = emptyList()
+    var goalTimeUsedYesterday: MutableList<Long> = mutableListOf()
+    var goalTimeAllowed: MutableList<Long> = mutableListOf()
+    var goalTimeUsedCurr: MutableList<Long> = mutableListOf()
     var numAchievedGoalsYesterday = 0
     var goalStreakDays = 0;
     var totalTimeYesterday: Long = 0
@@ -56,10 +56,10 @@ object  GoalTracker {
                 )!!
             for(i in goals.indices) {
                 if (category in goals[i].categoryList || key in goals[i].appList) {//pretty sure i can just have a map of categories -> list of goals but whatever
-                    goalTimeUsedCurr[i]?.plus(timeUsedCurr)
+                    goalTimeUsedYesterday[i]?.plus(timeUsedCurr)
                 }
             }
-            totalTimeCurr.plus(timeUsedCurr)
+            totalTimeYesterday.plus(timeUsedCurr)
         } else {
             usageDataAllCurr[key]?.timeUsed =
                 usageDataAllCurr[key]?.timeUsed?.plus(
@@ -67,10 +67,10 @@ object  GoalTracker {
                 )!!
             for(i in goals.indices) {
                 if (category in goals[i].categoryList || key in goals[i].appList) {//pretty sure i can just have a map of categories -> list of goals but whatever
-                    goalTimeUsedYesterday[i]?.plus(timeUsedCurr)
+                    goalTimeUsedCurr[i]?.plus(timeUsedCurr)
                 }
             }
-            totalTimeYesterday.plus(timeUsedCurr)
+            totalTimeCurr.plus(timeUsedCurr)
         }
     }
     fun initUsageDataKey(key: String, isDaily : Boolean){
@@ -85,6 +85,9 @@ object  GoalTracker {
         }
     }
     fun addGoal(name: String, time: Long, apps: List<String>, categories: List<String>) {
+        goalTimeUsedYesterday.add(0)
+        goalTimeUsedCurr.add(0)
+        goalTimeAllowed.add(0)
         val goal = Goal(name, time, apps, categories)
         goals.add(goal)
         print("addGoal finished")

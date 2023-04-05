@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.ExpandableListView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appause.*
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
@@ -53,7 +54,8 @@ class OnboardingActivity : AppCompatActivity() {
 
 
         val goalName = findViewById<EditText>(R.id.editTextTextGoalName).text.toString()
-        GoalTracker.addGoal(goalName, 0, appNames, appCategories)
+        val timeLimit = findViewById<EditText>(R.id.editTextTimeLimit).text.toString().toLong()
+        GoalTracker.addGoal(goalName, timeLimit, appNames, appCategories)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +68,7 @@ class OnboardingActivity : AppCompatActivity() {
             // We can now update firebase
             runBlocking {
                 Firebase.firestore.collection("users")
-                    .document(getUserDocIdBlocking(CurrentUser.user))
+                    .document(getUserDocIdBlocking(Firebase.auth.currentUser!!))
                     .update(
                         mutableMapOf(
                             "totalGoals" to GoalTracker.goals.size
