@@ -56,7 +56,7 @@ class FriendsRecyclerAdapter(private val listener: OnItemClickListener) : Recycl
 
 
         val v = LayoutInflater.from(parent.context).inflate(R.layout.friends_list_item, parent, false)
-            return ViewHolder(v)
+        return ViewHolder(v)
     }
 
 
