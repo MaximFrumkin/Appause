@@ -98,8 +98,8 @@ class SignInActivity : Activity() {
             CurrentUser.user = user
             Log.v("SIGNING IN", "USER>>>$user")
             checkIfUserExists(user)
-            val myIntent = if (firstTimeUser) Intent(this@SignInActivity, OnboardingActivity::class.java) else Intent(this@SignInActivity, MainActivity::class.java)
-//            val myIntent = Intent(this@SignInActivity, OnboardingActivity::class.java)
+//            val myIntent = if (firstTimeUser) Intent(this@SignInActivity, OnboardingActivity::class.java) else Intent(this@SignInActivity, MainActivity::class.java)
+            val myIntent = Intent(this@SignInActivity, OnboardingActivity::class.java)
             this@SignInActivity.startActivity(myIntent)
         } else {
             signIn()
