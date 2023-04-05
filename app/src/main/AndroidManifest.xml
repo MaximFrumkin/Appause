@@ -19,9 +19,9 @@
         <activity
             android:name=".CheckedActivity"
             android:exported="false"/>
-        <activity
+        <activity android:windowSoftInputMode="adjustPan"
             android:name=".expview.OnboardingActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".SignInActivity"
             android:exported="true">
