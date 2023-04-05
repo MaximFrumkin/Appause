@@ -23,7 +23,7 @@ class ReportsRecyclerAdapter(
     mainActivity: MainActivity,
     private val listener: OnItemClickListener
 ) : RecyclerView.Adapter<ReportsRecyclerAdapter.ViewHolder>() {
-    private val mainActivity: MainActivity = mainActivity
+    val mainActivity: MainActivity = mainActivity
     private var context = mainActivity.applicationContext
     private var appTimer = AppTimer(context, mainActivity.goalTracker)
 

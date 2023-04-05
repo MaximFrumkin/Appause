@@ -3,6 +3,7 @@ package com.example.appause.ui.reports
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -35,6 +36,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import com.example.appause.Goal
+import com.example.appause.GoalTracker
 
 
 class DetailedUsageActivity : AppCompatActivity() {
@@ -43,19 +46,31 @@ class DetailedUsageActivity : AppCompatActivity() {
 
         val perCategoryUsageArray = intent.getLongArrayExtra("perCategoryUsageList")
         // this will give original perCategoryUsageList sent with the intent
-        var perCategoryUsageList = perCategoryUsageArray?.toList()
 
         var categoryList = intent.getStringArrayListExtra("categoryList")?.toList()
         var totalGoalTime = intent.getLongExtra("totalGoalTime", 0)
 
         var goalName = intent.getStringExtra("goalName")
+        var goalTracker : GoalTracker = intent.getParcelableExtra("GOALTRACKER")!!
 
 
         // todo remove this block later for dummy data
-        ///////////////////////////////////////////////////////////////////////////
-        totalGoalTime = 100
-        categoryList = listOf("Whatsapp", "Instagram", "Snapchat")
-        perCategoryUsageList = listOf(50, 25, 75)
+        //////////////////////////////////////////////////////////////////////////
+        Log.v("DETAILED USAGE ", "${goalTracker.goals.map {g -> g.goalName}}")
+        Log.v("DETAILED USAGE ", "${goalName}")
+        val matchingGoalIndices = goalTracker.goals.indices.filter { i -> goalTracker.goals[i].goalName == goalName}
+        val matchingGoalIndex : Int = matchingGoalIndices[0]
+        val matchingGoal : Goal = goalTracker.goals[matchingGoalIndex]
+        totalGoalTime = matchingGoal.goalTime
+        categoryList = matchingGoal.appList
+        var perCategoryUsageList = mutableListOf<Long>()
+        for (app in categoryList) {
+            if (app in goalTracker.usageDataAllCurr) {
+                perCategoryUsageList.add(goalTracker.usageDataAllCurr[app]!!.timeUsed)
+            } else {
+                perCategoryUsageList.add(0)
+            }
+        }
         ///////////////////////////////////////////////////////////////////////////
 
         setContent {
