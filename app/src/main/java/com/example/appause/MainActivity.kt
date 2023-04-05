@@ -61,8 +61,6 @@ class MainActivity : AppCompatActivity() {
     val goalTracker: GoalTracker = GoalTracker
     lateinit var mileStoneCommunicationManager: MileStoneCommunicationManager
     var appTimer: AppTimer? = null
-    //val apps: List<String> = listOf("com.google.android.youtube")
-    //val categories: List<String> = emptyList()
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +69,6 @@ class MainActivity : AppCompatActivity() {
         Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
         // Choose authentication providers
         appTimer = AppTimer(this.applicationContext)
-        //goalTracker.addGoal("youtube", 6000, apps, categories)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
