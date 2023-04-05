@@ -12,6 +12,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -20,9 +22,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.appause.databinding.ActivityMainBinding
+import com.example.appause.expview.OnboardingActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -192,6 +196,12 @@ class MainActivity : AppCompatActivity() {
 
             builder.show()
         }
+
+        val editGoalsButton = findViewById<Button>(R.id.editGoalsButton)
+        editGoalsButton.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, OnboardingActivity::class.java)
+            startActivity(intent)
+        })
 
     }
 

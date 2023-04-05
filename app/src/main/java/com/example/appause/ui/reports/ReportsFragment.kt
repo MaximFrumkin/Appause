@@ -31,7 +31,6 @@ class ReportsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_reports, container, false)
 
-
         val listener = object : ReportsRecyclerAdapter.OnItemClickListener {
             override fun onItemClick(goal: Goal) {
 
