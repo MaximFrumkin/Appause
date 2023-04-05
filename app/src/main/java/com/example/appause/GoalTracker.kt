@@ -4,6 +4,7 @@ import android.widget.EditText
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.util.HashMap
+import kotlinx.serialization.Serializable
 
 /**
  * Tracks data relating to the overall usage data, goals, and usage data relevant to each goal
@@ -31,7 +32,8 @@ import java.util.HashMap
  * [usageDataAllCurr]
  * HashMap of all app usage data. The usage data is from midnight to the current time.
  */
-object  GoalTracker {
+@Serializable
+class GoalTracker {
     var goals : MutableList<Goal> = mutableListOf()
     //val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf()
     //val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf()
