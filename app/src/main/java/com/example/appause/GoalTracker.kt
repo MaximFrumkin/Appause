@@ -84,6 +84,15 @@ object  GoalTracker {
             }
         }
     }
+
+    fun reset() {
+        goals.clear() //mutableListOf()
+        goalTimeUsedYesterday.clear()
+        goalTimeAllowed.clear()
+        goalTimeUsedCurr.clear()
+        numAchievedGoalsYesterday = 0
+    }
+
     fun addGoal(name: String, time: Long, apps: List<String>, categories: List<String>) {
         goalTimeUsedYesterday.add(0)
         goalTimeUsedCurr.add(0)
