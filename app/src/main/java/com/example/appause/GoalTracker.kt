@@ -33,7 +33,7 @@ import kotlinx.serialization.Serializable
  * HashMap of all app usage data. The usage data is from midnight to the current time.
  */
 @Serializable
-class GoalTracker {
+object GoalTracker {
     var goals : MutableList<Goal> = mutableListOf()
     //val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf()
     //val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf()
@@ -103,6 +103,11 @@ class GoalTracker {
         goals.add(goal)
         print("addGoal finished")
     }
+
+    fun isEmpty(): Boolean {
+        return goals.size == 0 && usageDataAllCurr.isEmpty() && usageDataAllYesterday.isEmpty()
+    }
+
     fun countGoals(){
         numAchievedGoalsYesterday = 0;
         for (i in goalTimeUsedYesterday.indices){

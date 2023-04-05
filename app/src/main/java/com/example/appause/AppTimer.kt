@@ -23,9 +23,6 @@ class AppTimer(private val context: Context) {
      *  Get the usage data from midnight to the current time, and store it in the [GoalTracker] object.
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
-
-
-
     class AppCategoryService {
         companion object {
             private const val APP_URL = "https://play.google.com/store/apps/details?id="
@@ -75,7 +72,10 @@ class AppTimer(private val context: Context) {
             Log.v("category", href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length))
             return href.substring(href.indexOf(CATEGORY_STRING) + CAT_SIZE, href.length)
         }
+
+
     }
+
     fun getCurrentUsage(){
         val midnightCal: Calendar = Calendar.getInstance()
         midnightCal.set(Calendar.HOUR_OF_DAY, 0)
@@ -86,6 +86,7 @@ class AppTimer(private val context: Context) {
         GoalTracker.usageDataAllCurr = HashMap<String, AppData>()//reset the usageDataAllCurr
         getUsage(midnight, currTime, false)
     }
+
     // TODO: trigger getDailyUsage() on a schedule at the end of the day to see if the goal has been achieved
     /**
      *  Get the usage data for the past day, and store it in the [GoalTracker] object.

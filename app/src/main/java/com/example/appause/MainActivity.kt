@@ -29,9 +29,19 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.json.JSONObject
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.PrintWriter
+import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
+
 
 fun getUserDocIdBlocking(user: FirebaseUser): String {
     val db = Firebase.firestore
@@ -51,6 +61,7 @@ fun getUserDocIdBlocking(user: FirebaseUser): String {
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private var goalTracker: GoalTracker = GoalTracker
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStart() {
@@ -58,13 +69,54 @@ class MainActivity : AppCompatActivity() {
         handlePermissions()
     }
 
-    val goalTracker: GoalTracker = GoalTracker
     lateinit var mileStoneCommunicationManager: MileStoneCommunicationManager
     var appTimer: AppTimer? = null
+
+    private fun writeToFile() {
+
+        var dir = filesDir.absolutePath
+
+        val file = File("$dir/goalTracker.json")
+        try {
+            val fos = openFileOutput("goalTracker.json", MODE_PRIVATE)
+            val bytesArray = Json.encodeToString<GoalTracker>(goalTracker).toByteArray()
+            fos.write(bytesArray)
+            fos.flush()
+            fos?.close()
+        } catch (e: IOException) {
+            Log.e("Exception", "File write failed: $e")
+        }
+    }
+
+    private fun readFileDirectlyAsText(fileName: String): String {
+        return File(fileName).readText(Charsets.UTF_8)
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        var dir = filesDir.absolutePath
+
+        val file = File("$dir/goalTracker.json")
+        val json = JSONObject()
+
+        if (file.exists()) {
+            val goalString = readFileDirectlyAsText("$dir/goalTracker.json")
+            if (goalString != null && !goalString.isEmpty()) {
+
+                val readGoal = Json.decodeFromString<GoalTracker>(goalString)
+                Log.v("read: ", goalString)
+                if (!readGoal.isEmpty()) {
+                    goalTracker = readGoal
+                }
+            }
+        }
+        else {
+            openFileOutput("goalTracker.json", MODE_PRIVATE)
+        }
+
+
+        //sourced from https://www.bezkoder.com/kotlin-android-read-json-file-assets-gson/
 
         Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
         // Choose authentication providers
@@ -138,14 +190,14 @@ class MainActivity : AppCompatActivity() {
     private fun dailyGoalCheck() {
         if (appTimer != null) {
             appTimer!!.getDailyUsage()
-            GoalTracker.countGoals()
+            goalTracker.countGoals()
             //schedule new alarm for tomorrow. This is necessary as setRepeating() is inexact
             // after android API 19 to save battery,
             // so in order to guarantee that the daily goal check happens within 20 minutes of midnight,
             // we use a setWindow instead, and set it each day
             setAlarmTomorrow()
-            if (GoalTracker.isMilestone()) {
-                mileStoneCommunicationManager.updateFriendsOnMileStone(GoalTracker.goalStreakDays)
+            if (goalTracker.isMilestone()) {
+                mileStoneCommunicationManager.updateFriendsOnMileStone(goalTracker.goalStreakDays)
             }
         }
     }
@@ -236,6 +288,10 @@ class MainActivity : AppCompatActivity() {
         Log.v("INFO", ">>>>>>>\t\t\t\t${goalTracker.totalTimeCurr}")
     }
 
+    override fun onStop() {
+        super.onStop()
+        writeToFile()
+    }
     private fun addUser(user: FirebaseUser) {
         val db = Firebase.firestore
         // Create a new user with a first and last name
