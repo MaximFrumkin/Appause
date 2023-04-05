@@ -75,7 +75,6 @@ class MainActivity : AppCompatActivity() {
     private fun writeToFile() {
 
         var dir = filesDir.absolutePath
-
         val file = File("$dir/goalTracker.json")
         try {
             val fos = openFileOutput("goalTracker.json", MODE_PRIVATE)
@@ -98,20 +97,17 @@ class MainActivity : AppCompatActivity() {
         var dir = filesDir.absolutePath
 
         val file = File("$dir/goalTracker.json")
-        val json = JSONObject()
-
         if (file.exists()) {
             val goalString = readFileDirectlyAsText("$dir/goalTracker.json")
             if (goalString != null && !goalString.isEmpty()) {
 
                 val readGoal = Json.decodeFromString<GoalTracker>(goalString)
-                Log.v("read: ", goalString)
+                Log.v("MAIN ACTIVITY", "READ THE GOAL STRING: $goalString")
                 if (!readGoal.isEmpty()) {
                     goalTracker = readGoal
                 }
             }
-        }
-        else {
+        } else {
             openFileOutput("goalTracker.json", MODE_PRIVATE)
         }
 

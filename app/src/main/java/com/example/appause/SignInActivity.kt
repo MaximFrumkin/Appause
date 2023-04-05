@@ -49,12 +49,6 @@ class SignInActivity : Activity() {
         updateUI(currentUser)
     }
 
-    override fun onResume() {
-        super.onResume()
-        val currentUser = auth.currentUser
-        updateUI(currentUser)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
@@ -96,10 +90,10 @@ class SignInActivity : Activity() {
         if (user != null) {
             // Signed in!
             CurrentUser.user = user
-            Log.v("SIGNING IN", "USER>>>$user")
             checkIfUserExists(user)
-//            val myIntent = if (firstTimeUser) Intent(this@SignInActivity, OnboardingActivity::class.java) else Intent(this@SignInActivity, MainActivity::class.java)
-            val myIntent = Intent(this@SignInActivity, OnboardingActivity::class.java)
+            Log.v("SIGNING IN", "USER>>>$user WITH FIRST TIME BEING $firstTimeUser")
+            val myIntent = if (firstTimeUser) Intent(this@SignInActivity, OnboardingActivity::class.java) else Intent(this@SignInActivity, MainActivity::class.java)
+            Log.v("SIGNING IN", "USER>>>$user GOING TO $myIntent")
             this@SignInActivity.startActivity(myIntent)
         } else {
             signIn()
@@ -139,6 +133,7 @@ class SignInActivity : Activity() {
         if (checkTask == null) {
             addUser(user)
         } else {
+            Log.v("SIGINACTIVITY", "CHECK TASK COMPLETED WITH RESULT ${checkTask!!.documents}")
             if (checkTask!!.documents.isEmpty()) {
                 addUser(user)
             } else {

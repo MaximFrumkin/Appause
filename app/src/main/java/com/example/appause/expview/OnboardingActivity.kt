@@ -58,6 +58,7 @@ class OnboardingActivity : AppCompatActivity() {
         GoalTracker.addGoal(goalName, timeLimit, appNames, appCategories)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.v("ONBOARDING", "HELLO FROM ONBOARDING?????????????")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding)
         val confirmBtn = findViewById<Button>(R.id.btn)
