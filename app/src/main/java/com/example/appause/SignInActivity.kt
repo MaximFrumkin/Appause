@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.media.MediaCodec.QueueRequest
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import com.example.appause.expview.OnboardingActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn

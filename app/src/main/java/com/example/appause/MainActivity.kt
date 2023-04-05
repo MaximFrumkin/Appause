@@ -61,7 +61,7 @@ fun getUserDocIdBlocking(user: FirebaseUser): String {
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var goalTracker: GoalTracker = GoalTracker
+    var goalTracker: GoalTracker = GoalTracker()
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStart() {
@@ -73,12 +73,15 @@ class MainActivity : AppCompatActivity() {
     var appTimer: AppTimer? = null
 
     private fun writeToFile() {
-
-        var dir = filesDir.absolutePath
-        val file = File("$dir/goalTracker.json")
         try {
             val fos = openFileOutput("goalTracker.json", MODE_PRIVATE)
             val bytesArray = Json.encodeToString<GoalTracker>(goalTracker).toByteArray()
+            Log.v(
+                "MAIN",
+                "WRITING THE GOAL TRACK IN BYTE FORMAT ${
+                    Json.encodeToString<GoalTracker>(goalTracker)
+                }"
+            )
             fos.write(bytesArray)
             fos.flush()
             fos?.close()
@@ -96,19 +99,29 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         var dir = filesDir.absolutePath
 
-        val file = File("$dir/goalTracker.json")
-        if (file.exists()) {
-            val goalString = readFileDirectlyAsText("$dir/goalTracker.json")
-            if (goalString != null && !goalString.isEmpty()) {
-
-                val readGoal = Json.decodeFromString<GoalTracker>(goalString)
-                Log.v("MAIN ACTIVITY", "READ THE GOAL STRING: $goalString")
-                if (!readGoal.isEmpty()) {
-                    goalTracker = readGoal
-                }
+        Log.v("MAIN", "GOALTRACKERFROMINTENT>>>>>${intent.hasExtra("GOALTRACKER")}")
+        if (intent.hasExtra("GOALTRACKER")) {
+            goalTracker = intent.getParcelableExtra("GOALTRACKER")!!
+            Log.v("MAIN", "GOALTRACKERFROMINTENT ${goalTracker}")
+            val file = File("$dir/goalTracker.json")
+            if (!file.exists()) {
+                openFileOutput("goalTracker.json", MODE_PRIVATE)
             }
         } else {
-            openFileOutput("goalTracker.json", MODE_PRIVATE)
+            val file = File("$dir/goalTracker.json")
+            if (file.exists()) {
+                val goalString = readFileDirectlyAsText("$dir/goalTracker.json")
+                if (goalString != null && !goalString.isEmpty()) {
+
+                    val readGoal = Json.decodeFromString<GoalTracker>(goalString)
+                    Log.v("MAIN ACTIVITY", "READ THE GOAL STRING: $goalString")
+                    if (!readGoal.isEmpty()) {
+                        goalTracker = readGoal
+                    }
+                }
+            } else {
+                openFileOutput("goalTracker.json", MODE_PRIVATE)
+            }
         }
 
 
@@ -116,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         Log.v("INFO", ">>>>>>>\t\t\t\tHELLO WORLD")
         // Choose authentication providers
-        appTimer = AppTimer(this.applicationContext)
+        appTimer = AppTimer(this.applicationContext, goalTracker)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -288,6 +301,7 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         writeToFile()
     }
+
     private fun addUser(user: FirebaseUser) {
         val db = Firebase.firestore
         // Create a new user with a first and last name

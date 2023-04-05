@@ -1,8 +1,11 @@
 package com.example.appause
 
+import android.os.Parcelable
 import android.widget.EditText
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 import java.util.HashMap
 import kotlinx.serialization.Serializable
 
@@ -33,30 +36,47 @@ import kotlinx.serialization.Serializable
  * HashMap of all app usage data. The usage data is from midnight to the current time.
  */
 @Serializable
-object GoalTracker {
-    var goals : MutableList<Goal> = mutableListOf()
+@Parcelize
+data class GoalTracker(
+    var goals: @RawValue MutableList<Goal> = mutableListOf(),
+    val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf(),
+    val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf(),
+    var usageDataAllYesterday: @RawValue HashMap<String, AppData> = HashMap<String, AppData>(),
+    var goalTimeUsedYesterday: MutableList<Long> = mutableListOf(),
+    var goalTimeAllowed: MutableList<Long> = mutableListOf(),
+    var goalTimeUsedCurr: MutableList<Long> = mutableListOf(),
+    var numAchievedGoalsYesterday: Int = 0,
+    var goalStreakDays: Int = 0,
+    var totalTimeYesterday: Long = 0,
+    var totalTimeCurr: Long = 0,
+    var usageDataAllCurr: @RawValue HashMap<String, AppData> = HashMap<String, AppData>()
+) : Parcelable {
+    /*
+    var goals: MutableList<Goal> = mutableListOf()
+
     //val goalAppsYesterday : MutableList<MutableList<String>> = mutableListOf()
     //val goalAppsCurr : MutableList<MutableList<String>> = mutableListOf()
-    var usageDataAllYesterday :  HashMap<String, AppData> = HashMap<String, AppData>()
+    var usageDataAllYesterday: HashMap<String, AppData> = HashMap<String, AppData>()
     var goalTimeUsedYesterday: MutableList<Long> = mutableListOf()
     var goalTimeAllowed: MutableList<Long> = mutableListOf()
     var goalTimeUsedCurr: MutableList<Long> = mutableListOf()
     var numAchievedGoalsYesterday = 0
-    var goalStreakDays = 0;
+    var goalStreakDays = 0
     var totalTimeYesterday: Long = 0
     var totalTimeCurr: Long = 0
-    var usageDataAllCurr :  HashMap<String, AppData> = HashMap<String, AppData>()
+    var usageDataAllCurr: HashMap<String, AppData> = HashMap<String, AppData>()*/
 
     init {
         goals = goals.toMutableList()
     }
-    fun updateUsageDataAll(key: String, category: String, timeUsedCurr : Long, isDaily : Boolean) {
-        if(isDaily) {
+
+    fun updateUsageDataAll(key: String, category: String, timeUsedCurr: Long, isDaily: Boolean) {
+        if (isDaily) {
             usageDataAllYesterday[key]?.timeUsed =
                 usageDataAllYesterday[key]?.timeUsed?.plus(
                     timeUsedCurr
                 )!!
-            for(i in goals.indices) {
+            for (i in goals.indices) {
                 if (category in goals[i].categoryList || key in goals[i].appList) {//pretty sure i can just have a map of categories -> list of goals but whatever
                     goalTimeUsedYesterday[i]?.plus(timeUsedCurr)
                 }
@@ -67,7 +87,7 @@ object GoalTracker {
                 usageDataAllCurr[key]?.timeUsed?.plus(
                     timeUsedCurr
                 )!!
-            for(i in goals.indices) {
+            for (i in goals.indices) {
                 if (category in goals[i].categoryList || key in goals[i].appList) {//pretty sure i can just have a map of categories -> list of goals but whatever
                     goalTimeUsedCurr[i]?.plus(timeUsedCurr)
                 }
@@ -75,8 +95,9 @@ object GoalTracker {
             totalTimeCurr.plus(timeUsedCurr)
         }
     }
-    fun initUsageDataKey(key: String, isDaily : Boolean){
-        if(isDaily) {
+
+    fun initUsageDataKey(key: String, isDaily: Boolean) {
+        if (isDaily) {
             if (usageDataAllYesterday[key] == null) {
                 usageDataAllYesterday[key] = AppData()
             }
@@ -108,17 +129,17 @@ object GoalTracker {
         return goals.size == 0 && usageDataAllCurr.isEmpty() && usageDataAllYesterday.isEmpty()
     }
 
-    fun countGoals(){
-        numAchievedGoalsYesterday = 0;
-        for (i in goalTimeUsedYesterday.indices){
-            if(goalTimeAllowed[i] >= goalTimeUsedYesterday[i]){
-                numAchievedGoalsYesterday++;
+    fun countGoals() {
+        numAchievedGoalsYesterday = 0
+        for (i in goalTimeUsedYesterday.indices) {
+            if (goalTimeAllowed[i] >= goalTimeUsedYesterday[i]) {
+                numAchievedGoalsYesterday++
             }
         }
-        if(numAchievedGoalsYesterday == goalTimeAllowed.size){
+        if (numAchievedGoalsYesterday == goalTimeAllowed.size) {
             goalStreakDays++
-        }else {
-            goalStreakDays = 0;
+        } else {
+            goalStreakDays = 0
         }
 
         Firebase.firestore.collection("users").document(getUserDocIdBlocking(CurrentUser.user))
@@ -131,9 +152,9 @@ object GoalTracker {
 
     fun isMilestone(): Boolean {
         if (goalStreakDays == 0) {
-            return false;
-        } else if(goalStreakDays == 1) {
-            return true;
+            return false
+        } else if (goalStreakDays == 1) {
+            return true
         } else return goalStreakDays % 10 == 0
     }
 }

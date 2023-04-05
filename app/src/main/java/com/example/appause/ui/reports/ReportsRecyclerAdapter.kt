@@ -25,7 +25,7 @@ class ReportsRecyclerAdapter(
 ) : RecyclerView.Adapter<ReportsRecyclerAdapter.ViewHolder>() {
     private val mainActivity: MainActivity = mainActivity
     private var context = mainActivity.applicationContext
-    private var appTimer = AppTimer(context)
+    private var appTimer = AppTimer(context, mainActivity.goalTracker)
 
     // This list contains goalCategories and goalTime
     private var goals: List<Goal> = emptyList()
@@ -96,12 +96,12 @@ class ReportsRecyclerAdapter(
 
         newGoalList.add(totalScreenTimeGoal)
 
-        for (goal in GoalTracker.goals) {
+        for (goal in mainActivity.goalTracker.goals) {
             newGoalList.add(goal)
         }
         goals = newGoalList
-        totalScreenTime = GoalTracker.totalTimeCurr
-        goalTimeUsedCurr = GoalTracker.goalTimeUsedCurr
+        totalScreenTime = mainActivity.goalTracker.totalTimeCurr
+        goalTimeUsedCurr = mainActivity.goalTracker.goalTimeUsedCurr
 
         notifyDataSetChanged()
     }

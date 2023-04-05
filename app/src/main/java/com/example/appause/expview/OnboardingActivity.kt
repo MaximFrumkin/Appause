@@ -3,6 +3,7 @@ package com.example.appause.expview
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -15,6 +16,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 
 class OnboardingActivity : AppCompatActivity() {
@@ -24,6 +27,8 @@ class OnboardingActivity : AppCompatActivity() {
     private var parentItems: ArrayList<HashMap<String, String?>>? = null
     private var childItems: ArrayList<ArrayList<HashMap<String, String?>>>? = null
     private var myCategoriesExpandableListAdapter: MyCategoriesExpandableListAdapter? = null
+    private var goalTracker : GoalTracker = GoalTracker()
+
 
     private fun addGoalToGoalTracker() {
         // Add the current goal to the goal tracker!
@@ -55,8 +60,11 @@ class OnboardingActivity : AppCompatActivity() {
 
         val goalName = findViewById<EditText>(R.id.editTextTextGoalName).text.toString()
         val timeLimit = findViewById<EditText>(R.id.editTextTimeLimit).text.toString().toLong()
-        GoalTracker.addGoal(goalName, timeLimit, appNames, appCategories)
+        goalTracker.addGoal(goalName, timeLimit, appNames, appCategories)
+        Log.v("ONBOARDING", "WRITING THE GOAL TRACK IN BYTE FORMAT ${goalTracker.goals}")
+        Log.v("ONBOARDING", "WRITING THE GOAL TRACK IN BYTE FORMAT ${Json.encodeToString(goalTracker)}")
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.v("ONBOARDING", "HELLO FROM ONBOARDING?????????????")
         super.onCreate(savedInstanceState)
@@ -72,12 +80,13 @@ class OnboardingActivity : AppCompatActivity() {
                     .document(getUserDocIdBlocking(Firebase.auth.currentUser!!))
                     .update(
                         mutableMapOf(
-                            "totalGoals" to GoalTracker.goals.size
+                            "totalGoals" to goalTracker.goals.size
                         ) as Map<String, Any>
                     ).await()
             }
-            Log.v("ONBOARDING", "UPDATED TOTAL GOALS ${GoalTracker.goals.size}")
+            Log.v("ONBOARDING", "UPDATED TOTAL GOALS ${goalTracker.goals.size}")
             val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("GOALTRACKER", goalTracker)
             startActivity(intent)
         })
 

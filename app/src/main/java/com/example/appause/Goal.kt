@@ -1,6 +1,8 @@
 package com.example.appause
 
 import android.app.usage.UsageEvents
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 
@@ -12,7 +14,9 @@ import kotlinx.serialization.Serializable
 //or base don app categories
 //
 @Serializable
-class Goal(var goalName: String, var goalTime : Long, val appList: List<String>, val categoryList: List<String>) {
+@Parcelize
+class Goal(var goalName: String, var goalTime : Long, val appList: List<String>, val categoryList: List<String>) :
+    Parcelable {
     fun eventIsInGoal(event : UsageEvents.Event): Boolean {
         return true
     }
