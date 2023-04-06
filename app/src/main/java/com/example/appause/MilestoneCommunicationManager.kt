@@ -15,7 +15,7 @@ class MileStoneCommunicationManager constructor(context: Context) {
     fun updateFriendsOnMileStone(streak: Int) {
         // First, clear the congratulator list!
         val userId = getUserDocIdBlocking(user)
-        Firebase.firestore.collection("users/$userId").document().update(
+        Firebase.firestore.collection("users").document("$userId").update(
             mutableMapOf(
                 "congratulators" to emptyArray<String>()
             ) as Map<String, Any>
