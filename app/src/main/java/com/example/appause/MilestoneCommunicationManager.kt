@@ -17,7 +17,7 @@ class MileStoneCommunicationManager constructor(context: Context) {
         val userId = getUserDocIdBlocking(user)
         Firebase.firestore.collection("users").document("$userId").update(
             mutableMapOf(
-                "congratulators" to emptyArray<String>()
+                "congratulators" to emptyList<String>()
             ) as Map<String, Any>
         )
         val title = "Congratulate " + user.displayName + "!"
